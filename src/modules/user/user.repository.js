@@ -1,5 +1,4 @@
 const { prisma } = require('../../config/database');
-const { AppError } = require('../../common/error');
 const bcrypt = require('bcryptjs');
 
 /**

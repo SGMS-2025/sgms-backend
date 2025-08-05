@@ -71,7 +71,7 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
       if (user) {
         req.user = user;
       }
-    } catch (error) {
+    } catch (_error) {
       // Ignore token errors for optional auth
     }
   }

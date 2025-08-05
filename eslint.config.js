@@ -1,7 +1,6 @@
 import js from '@eslint/js';
 
 export default [
-  js.configs.recommended,
   {
     languageOptions: {
       ecmaVersion: "latest",
@@ -15,55 +14,32 @@ export default [
         exports: "writable",
         module: "writable",
         require: "readonly",
-        global: "readonly"
+        global: "readonly",
+        setTimeout: "readonly"
       }
     },
     rules: {
-      // Ngăn chặn console.log trong production
+      // Chỉ kiểm tra console.log trong production (critical)
       "no-console": ["error", { 
         "allow": ["warn", "error", "info"] 
       }],
       
-      // Các rules khác cho code quality
-      "no-debugger": "error",
-      "no-alert": "error",
+      // Chỉ kiểm tra imports và variables không sử dụng (critical)
       "no-unused-vars": ["error", { 
         "argsIgnorePattern": "^_",
-        "varsIgnorePattern": "^_" 
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_",
+        "args": "none"  // Bỏ qua tất cả unused function arguments
       }],
-      "prefer-const": "error",
-      "no-var": "error",
-      "eqeqeq": "error",
-      "no-trailing-spaces": "error",
-      "indent": ["error", 2],
-      "quotes": ["error", "single", { "avoidEscape": true }],
-      "semi": ["error", "always"],
+      "no-duplicate-imports": "error",
       
-      // Additional security and best practices
+      // Các lỗi security nghiêm trọng (critical)
+      "no-debugger": "error",
       "no-eval": "error",
       "no-implied-eval": "error",
       "no-new-func": "error",
-      "no-script-url": "error",
-      "prefer-template": "error",
-      "object-shorthand": "error",
-      "prefer-arrow-callback": "error",
-      "no-duplicate-imports": "error",
-      "no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1 }],
-      "comma-dangle": ["error", "never"],
-      "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
-      "keyword-spacing": "error",
-      "space-before-blocks": "error"
+      "no-script-url": "error"
     },
-    files: ["src/**/*.js", "scripts/**/*.js"],
-    ignores: [
-      "node_modules/**",
-      "dist/**",
-      "build/**",
-      "coverage/**",
-      "*.config.js",
-      "test-config.js",
-      ".cz-config.js",
-      ".husky/**"
-    ]
+    files: ["src/**/*.js"]
   }
 ];

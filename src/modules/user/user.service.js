@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const userRepository = require('./user.repository');
-const { AppError, createAppError } = require('../../common/error');
+const {createAppError } = require('../../common/error');
 const logger = require('../../config/logger');
 
 /**
