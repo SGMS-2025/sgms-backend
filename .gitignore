@@ -1,0 +1,37 @@
+# Prisma
+prisma/migrations/
+
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+
+# Test
+coverage/
+.nyc_output/
+
+# Runtime
+pids/
+*.pid
+*.seed
+*.pid.lock

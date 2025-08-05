@@ -1,0 +1,24 @@
+echo "🔍 Validating commit message format..."
+
+# Read commit message
+commit_msg=$(cat "$1")
+
+# Define commit message pattern
+commit_regex='^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,50}'
+
+if ! echo "$commit_msg" | grep -qE "$commit_regex"; then
+    echo "❌ Invalid commit message format!"
+    echo ""
+    echo "📝 Required format: type(scope): description"
+    echo "📝 Allowed types: feat, fix, docs, style, refactor, test, chore, perf, ci, build, revert"
+    echo "📝 Examples:"
+    echo "   feat(auth): add JWT authentication"
+    echo "   fix(user): resolve profile update bug"
+    echo "   docs(api): update authentication endpoints"
+    echo "   refactor(database): improve query performance"
+    echo ""
+    echo "🔧 Your commit message: '$commit_msg'"
+    exit 1
+fi
+
+echo "✅ Commit message format is valid!"

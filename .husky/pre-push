@@ -1,0 +1,41 @@
+echo "🚀 Running pre-push checks..."
+
+# 1. Double check for console.log before pushing
+echo "📝 Final check for console.log statements..."
+node scripts/check-console.js
+
+if [ $? -ne 0 ]; then
+  echo "❌ Console.log statements found! Cannot push to remote."
+  echo "💡 Run: npm run console:fix to auto-fix"
+  exit 1
+fi
+
+# 2. Run full lint check
+echo "🔍 Running full ESLint check..."
+npm run lint:check
+
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint errors found! Cannot push to remote."
+  echo "💡 Run: npm run lint:fix to auto-fix"
+  exit 1
+fi
+
+# 3. Validate environment configuration
+echo "⚙️ Validating environment configuration..."
+npm run test:config
+
+if [ $? -ne 0 ]; then
+  echo "❌ Environment configuration invalid! Cannot push to remote."
+  exit 1
+fi
+
+# 4. Run tests
+echo "🧪 Running tests..."
+npm test
+
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed! Cannot push to remote."
+  exit 1
+fi
+
+echo "✅ All pre-push checks passed! Safe to push to remote."
