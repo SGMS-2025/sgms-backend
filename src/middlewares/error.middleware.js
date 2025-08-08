@@ -3,61 +3,30 @@ const { errorResponse } = require('../common/response');
 const logger = require('../config/logger');
 
 /**
- * Handle Prisma Client Known Request Errors
- * @param {Error} error - Prisma error
+ * Handle MongoDB/Mongoose Errors
+ * @param {Error} error - MongoDB/Mongoose error
  * @returns {AppError} - Formatted AppError
  */
-const handlePrismaError = (error) => {
+const handleMongoError = (error) => {
   let message = 'Database operation failed';
   let statusCode = 500;
 
-  switch (error.code) {
-  case 'P2002':
-    // Unique constraint violation
-    const field = error.meta?.target?.[0] || 'field';
+  // Duplicate key error (E11000)
+  if (error.code === 11000) {
+    const field = Object.keys(error.keyValue || {})[0] || 'field';
     message = `${field} already exists`;
     statusCode = 409;
-    break;
-
-  case 'P2025':
-    // Record not found
-    message = 'Record not found';
-    statusCode = 404;
-    break;
-
-  case 'P2003':
-    // Foreign key constraint violation
-    message = 'Related record not found';
+  }
+  // Cast error (invalid ObjectId)
+  else if (error.name === 'CastError') {
+    message = 'Invalid ID format';
     statusCode = 400;
-    break;
-
-  case 'P2004':
-    // Constraint violation
-    message = 'Data constraint violation';
+  }
+  // Validation error
+  else if (error.name === 'ValidationError') {
+    const errors = Object.values(error.errors).map(val => val.message);
+    message = errors.join('. ');
     statusCode = 400;
-    break;
-
-  case 'P2014':
-    // Invalid ID
-    message = 'Invalid ID provided';
-    statusCode = 400;
-    break;
-
-  case 'P2021':
-    // Table not found
-    message = 'Database table not found';
-    statusCode = 500;
-    break;
-
-  case 'P2022':
-    // Column not found
-    message = 'Database column not found';
-    statusCode = 500;
-    break;
-
-  default:
-    message = 'Database operation failed';
-    statusCode = 500;
   }
 
   return new AppError(message, statusCode);
@@ -168,14 +137,12 @@ const globalErrorHandler = (err, req, res, next) => {
   });
 
   // Handle different types of errors
-  if (err.name === 'PrismaClientKnownRequestError') {
-    error = handlePrismaError(error);
+  if (error.code === 11000 || error.name === 'ValidationError' || error.name === 'CastError') {
+    error = handleMongoError(error);
   } else if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
     error = handleJWTError(error);
   } else if (err.name === 'ValidationError' && err.isJoi) {
     error = handleValidationError(error);
-  } else if (err.name === 'CastError') {
-    error = new AppError('Invalid ID format', 400);
   }
 
   // Send error response based on environment

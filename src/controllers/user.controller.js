@@ -1,7 +1,7 @@
-const userService = require('./user.service');
-const { successResponse, paginatedResponse } = require('../../common/response');
-const { asyncHandler } = require('../../common/asyncHandler');
-const { HTTP_STATUS } = require('../../common/error');
+const userService = require('../services/user.service');
+const { successResponse, paginatedResponse } = require('../common/response');
+const { asyncHandler } = require('../common/asyncHandler');
+const { HTTP_STATUS } = require('../common/error');
 
 /**
  * User Controller

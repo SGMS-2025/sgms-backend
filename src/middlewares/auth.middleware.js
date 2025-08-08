@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { AppError } = require('../common/error');
 const { asyncHandler } = require('../common/asyncHandler');
-const userRepository = require('../modules/user/user.repository');
+const { User } = require('../models');
 
 /**
  * Authentication Middleware
@@ -25,7 +25,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
   // Get user from database
-  const user = await userRepository.findById(decoded.id);
+  const user = await User.findById(decoded.id);
 
   if (!user) {
     throw new AppError('User not found', 401);
@@ -66,7 +66,7 @@ const optionalAuth = asyncHandler(async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await userRepository.findById(decoded.id);
+      const user = await User.findById(decoded.id);
 
       if (user) {
         req.user = user;

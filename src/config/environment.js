@@ -15,9 +15,8 @@ const environment = process.env.NODE_ENV || 'development';
  */
 const databaseConfig = {
   development: {
-    url: process.env.DATABASE_URL || buildDatabaseUrl(),
+    url: process.env.MONGODB_URI || process.env.DATABASE_URL || buildDatabaseUrl(),
     options: {
-      log: ['query', 'info', 'warn', 'error'],
       connectionLimit: 5,
       acquireTimeout: 60000,
       timeout: 60000,
@@ -25,9 +24,8 @@ const databaseConfig = {
     }
   },
   staging: {
-    url: process.env.DATABASE_URL || buildDatabaseUrl(),
+    url: process.env.MONGODB_URI || process.env.DATABASE_URL || buildDatabaseUrl(),
     options: {
-      log: ['info', 'warn', 'error'],
       connectionLimit: 10,
       acquireTimeout: 30000,
       timeout: 30000,
@@ -35,9 +33,8 @@ const databaseConfig = {
     }
   },
   production: {
-    url: process.env.DATABASE_URL || buildDatabaseUrl(),
+    url: process.env.MONGODB_URI || process.env.DATABASE_URL || buildDatabaseUrl(),
     options: {
-      log: ['warn', 'error'],
       connectionLimit: parseInt(process.env.MAX_CONNECTION_POOL) || 20,
       acquireTimeout: parseInt(process.env.CONNECTION_TIMEOUT) || 30000,
       timeout: parseInt(process.env.QUERY_TIMEOUT) || 10000,
@@ -47,22 +44,24 @@ const databaseConfig = {
 };
 
 /**
- * Build DATABASE_URL from individual environment variables
+ * Build MONGODB_URI from individual environment variables
  */
 function buildDatabaseUrl() {
   const {
     DB_HOST = 'localhost',
-    DB_PORT = '5432',
+    DB_PORT = '27017',
     DB_NAME = getDefaultDbName(),
-    DB_USER = 'postgres',
+    DB_USER = '',
     DB_PASSWORD = ''
   } = process.env;
 
-  if (!DB_PASSWORD) {
-    throw new Error('Database password is required. Please set DB_PASSWORD or DATABASE_URL');
+  // For MongoDB, if no credentials provided, use simple connection
+  if (!DB_USER || !DB_PASSWORD) {
+    return `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`;
   }
 
-  return `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
+  // With credentials
+  return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
 }
 
 /**
@@ -135,8 +134,8 @@ const loggingConfig = {
 function validateEnvironment() {
   const requiredVars = {
     development: ['JWT_SECRET'],
-    staging: ['JWT_SECRET', 'DATABASE_URL'],
-    production: ['JWT_SECRET', 'DATABASE_URL']
+    staging: ['JWT_SECRET', 'MONGODB_URI'],
+    production: ['JWT_SECRET', 'MONGODB_URI']
   };
 
   const envVars = requiredVars[environment] || requiredVars.development;
