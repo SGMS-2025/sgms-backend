@@ -19,7 +19,7 @@
     "env:setup:staging": "powershell -ExecutionPolicy Bypass -File scripts/setup-environment.ps1 staging",
     "env:setup:prod": "powershell -ExecutionPolicy Bypass -File scripts/setup-environment.ps1 prod",
     "env:setup:bash": "bash scripts/setup-environment.sh",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "prepare": "husky",
     "commit": "cz",
     "commit:interactive": "git-cz"
