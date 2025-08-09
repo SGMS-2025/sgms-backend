@@ -2,18 +2,11 @@ const app = require('./app');
 const logger = require('./config/logger');
 const { connectDB } = require('./config/database');
 
-/**
- * Server Configuration
- */
-const PORT = process.env.PORT || 3000;
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = process.env.PORT;
+const NODE_ENV = process.env.NODE_ENV;
 
-/**
- * Connect to MongoDB and Start Server
- */
 const startServer = async () => {
   try {
-    // Connect to MongoDB
     await connectDB();
     logger.info('✅ Database connected successfully');
 
@@ -35,9 +28,6 @@ const startServer = async () => {
       }
     });
 
-    /**
-     * Handle Server Errors
-     */
     server.on('error', (error) => {
       if (error.syscall !== 'listen') {
         throw error;
@@ -45,29 +35,25 @@ const startServer = async () => {
 
       const bind = typeof PORT === 'string' ? `Pipe ${PORT}` : `Port ${PORT}`;
 
-      // Handle specific listen errors with friendly messages
       switch (error.code) {
-      case 'EACCES':
-        logger.error(`${bind} requires elevated privileges`);
-        process.exit(1);
-        break;
-      case 'EADDRINUSE':
-        logger.error(`${bind} is already in use`);
-        process.exit(1);
-        break;
-      default:
-        throw error;
+        case 'EACCES':
+          logger.error(`${bind} requires elevated privileges`);
+          process.exit(1);
+          break;
+        case 'EADDRINUSE':
+          logger.error(`${bind} is already in use`);
+          process.exit(1);
+          break;
+        default:
+          throw error;
       }
     });
 
-    // Export server for testing
     module.exports = server;
-    
   } catch (error) {
     logger.error('❌ Failed to start server:', error);
     process.exit(1);
   }
 };
 
-// Start the server
 startServer();

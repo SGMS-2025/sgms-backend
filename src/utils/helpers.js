@@ -1,19 +1,5 @@
-/**
- * Common Utility Functions
- */
-
-/**
- * Sleep function for async operations
- * @param {number} ms - Milliseconds to sleep
- * @returns {Promise} Promise that resolves after specified time
- */
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-/**
- * Generate random string
- * @param {number} length - Length of the string
- * @returns {string} Random string
- */
 const generateRandomString = (length = 32) => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -23,42 +9,21 @@ const generateRandomString = (length = 32) => {
   return result;
 };
 
-/**
- * Generate random number within range
- * @param {number} min - Minimum value
- * @param {number} max - Maximum value
- * @returns {number} Random number
- */
 const generateRandomNumber = (min = 0, max = 100) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
-/**
- * Sanitize string for safe output
- * @param {string} str - Input string
- * @returns {string} Sanitized string
- */
 const sanitizeString = (str) => {
   if (typeof str !== 'string') return str;
   return str.replace(/[<>]/g, '');
 };
 
-/**
- * Check if value is empty
- * @param {*} value - Value to check
- * @returns {boolean} True if empty
- */
 const isEmpty = (value) => {
   return value == null || value === '' ||
          (Array.isArray(value) && value.length === 0) ||
          (typeof value === 'object' && Object.keys(value).length === 0);
 };
 
-/**
- * Deep clone object
- * @param {Object} obj - Object to clone
- * @returns {Object} Cloned object
- */
 const deepClone = (obj) => {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj.getTime());
@@ -72,12 +37,6 @@ const deepClone = (obj) => {
   }
 };
 
-/**
- * Format date to string
- * @param {Date} date - Date object
- * @param {string} format - Format string (default: 'YYYY-MM-DD')
- * @returns {string} Formatted date string
- */
 const formatDate = (date, format = 'YYYY-MM-DD') => {
   const d = new Date(date);
   const year = d.getFullYear();
@@ -96,11 +55,6 @@ const formatDate = (date, format = 'YYYY-MM-DD') => {
     .replace('ss', seconds);
 };
 
-/**
- * Convert string to slug
- * @param {string} str - Input string
- * @returns {string} Slug string
- */
 const toSlug = (str) => {
   return str
     .toLowerCase()
@@ -110,41 +64,21 @@ const toSlug = (str) => {
     .replace(/^-+|-+$/g, '');
 };
 
-/**
- * Capitalize first letter
- * @param {string} str - Input string
- * @returns {string} Capitalized string
- */
 const capitalize = (str) => {
   if (typeof str !== 'string') return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 };
 
-/**
- * Convert camelCase to snake_case
- * @param {string} str - Input string
- * @returns {string} Snake case string
- */
 const camelToSnake = (str) => {
   return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 };
 
-/**
- * Convert snake_case to camelCase
- * @param {string} str - Input string
- * @returns {string} Camel case string
- */
 const snakeToCamel = (str) => {
   return str.replace(/([-_][a-z])/g, group =>
     group.toUpperCase().replace('-', '').replace('_', '')
   );
 };
 
-/**
- * Parse query parameters for pagination
- * @param {Object} query - Query object
- * @returns {Object} Parsed pagination parameters
- */
 const parsePagination = (query) => {
   const page = Math.max(1, parseInt(query.page) || 1);
   const limit = Math.min(100, Math.max(1, parseInt(query.limit) || 10));
@@ -153,13 +87,6 @@ const parsePagination = (query) => {
   return { page, limit, offset };
 };
 
-/**
- * Generate pagination meta
- * @param {number} page - Current page
- * @param {number} limit - Items per page
- * @param {number} total - Total items
- * @returns {Object} Pagination meta
- */
 const getPaginationMeta = (page, limit, total) => {
   const totalPages = Math.ceil(total / limit);
   const hasNext = page < totalPages;
@@ -175,22 +102,11 @@ const getPaginationMeta = (page, limit, total) => {
   };
 };
 
-/**
- * Validate email format
- * @param {string} email - Email to validate
- * @returns {boolean} True if valid email
- */
 const isValidEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-/**
- * Mask sensitive data
- * @param {string} str - String to mask
- * @param {number} visibleChars - Number of visible characters
- * @returns {string} Masked string
- */
 const maskString = (str, visibleChars = 4) => {
   if (!str || str.length <= visibleChars) return str;
   const visible = str.slice(0, visibleChars);
@@ -198,10 +114,6 @@ const maskString = (str, visibleChars = 4) => {
   return visible + masked;
 };
 
-/**
- * Generate UUID v4
- * @returns {string} UUID string
- */
 const generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
     const r = Math.random() * 16 | 0;
@@ -210,11 +122,6 @@ const generateUUID = () => {
   });
 };
 
-/**
- * Remove undefined values from object
- * @param {Object} obj - Object to clean
- * @returns {Object} Cleaned object
- */
 const removeUndefined = (obj) => {
   return Object.keys(obj).reduce((acc, key) => {
     if (obj[key] !== undefined) {

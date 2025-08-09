@@ -1,88 +1,35 @@
-const { AppError } = require('../common/error');
-
-/**
- * Validation Middleware
- * Validates request data against Joi schema
- */
-const validate = (schema) => {
+const validate = (schema, property = 'body') => {
   return (req, res, next) => {
-    const { error } = schema.validate(req.body, {
+    const { error, value } = schema.validate(req[property], {
       abortEarly: false,
       allowUnknown: false,
-      stripUnknown: true
+      stripUnknown: true,
     });
 
     if (error) {
-      const errors = error.details.map(detail => ({
-        field: detail.path.join('.'),
-        message: detail.message.replace(/['"]/g, '')
-      }));
-
-      const appError = new AppError('Validation failed', 422);
-      appError.details = errors;
-      return next(appError);
+      return next(error);
     }
 
+    req[property] = value;
     next();
   };
 };
 
-/**
- * Validate Query Parameters
- */
 const validateQuery = (schema) => {
-  return (req, res, next) => {
-    const { error, value } = schema.validate(req.query, {
-      abortEarly: false,
-      allowUnknown: false,
-      stripUnknown: true
-    });
-
-    if (error) {
-      const errors = error.details.map(detail => ({
-        field: detail.path.join('.'),
-        message: detail.message.replace(/['"]/g, '')
-      }));
-
-      const appError = new AppError('Query validation failed', 422);
-      appError.details = errors;
-      return next(appError);
-    }
-
-    req.query = value;
-    next();
-  };
+  return validate(schema, 'query');
 };
 
-/**
- * Validate Route Parameters
- */
 const validateParams = (schema) => {
-  return (req, res, next) => {
-    const { error, value } = schema.validate(req.params, {
-      abortEarly: false,
-      allowUnknown: false,
-      stripUnknown: true
-    });
+  return validate(schema, 'params');
+};
 
-    if (error) {
-      const errors = error.details.map(detail => ({
-        field: detail.path.join('.'),
-        message: detail.message.replace(/['"]/g, '')
-      }));
-
-      const appError = new AppError('Parameter validation failed', 422);
-      appError.details = errors;
-      return next(appError);
-    }
-
-    req.params = value;
-    next();
-  };
+const validateBody = (schema) => {
+  return validate(schema, 'body');
 };
 
 module.exports = {
   validate,
   validateQuery,
-  validateParams
+  validateParams,
+  validateBody,
 };

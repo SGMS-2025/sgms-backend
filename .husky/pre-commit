@@ -1,23 +1,6 @@
 echo "🚀 Running pre-commit checks..."
 
-# 1. Check for console.log statements
-echo "📝 Checking for console.log statements..."
-node scripts/check-console.js
-
-if [ $? -ne 0 ]; then
-  echo "❌ Console.log statements found! Please remove them before committing."
-  echo "💡 You can auto-fix by running: npm run console:fix"
-  exit 1
-fi
-
-# 2. Run ESLint check on src files only
-echo "🔍 Running ESLint on src files..."
-npx eslint src/ --fix
-
-if [ $? -ne 0 ]; then
-  echo "❌ ESLint errors found! Please fix them before committing."
-  echo "💡 You can auto-fix some issues by running: npm run lint:fix"
-  exit 1
-fi
+# Use lint-staged for optimized checking of staged files only
+npx lint-staged
 
 echo "✅ All pre-commit checks passed!"

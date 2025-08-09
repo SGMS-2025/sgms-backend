@@ -1,19 +1,10 @@
 const Joi = require('joi');
 
-/**
- * Custom Joi validation for MongoDB ObjectId
- */
 const objectId = Joi.string().pattern(/^[0-9a-fA-F]{24}$/).messages({
   'string.pattern.base': 'Invalid ObjectId format'
 });
 
-/**
- * User Validation Schemas
- */
 const userValidation = {
-  /**
-   * User Registration Validation
-   */
   register: Joi.object({
     email: Joi.string()
       .email()
@@ -72,9 +63,6 @@ const userValidation = {
     }).optional()
   }),
 
-  /**
-   * User Login Validation
-   */
   login: Joi.object({
     email: Joi.string()
       .email()
@@ -93,9 +81,6 @@ const userValidation = {
       })
   }),
 
-  /**
-   * Update Profile Validation
-   */
   updateProfile: Joi.object({
     email: Joi.string()
       .email()
@@ -147,9 +132,6 @@ const userValidation = {
     }).optional()
   }),
 
-  /**
-   * Update Role Validation (Admin only)
-   */
   updateRole: Joi.object({
     role: Joi.string()
       .valid('USER', 'ADMIN', 'MODERATOR')
@@ -160,9 +142,6 @@ const userValidation = {
       })
   }),
 
-  /**
-   * Query Parameters Validation
-   */
   queryParams: Joi.object({
     page: Joi.number()
       .integer()
@@ -220,9 +199,6 @@ const userValidation = {
       })
   }),
 
-  /**
-   * Route Parameters Validation (MongoDB ObjectId)
-   */
   params: Joi.object({
     id: objectId.required().messages({
       'any.required': 'User ID is required'

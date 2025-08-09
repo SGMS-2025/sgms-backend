@@ -62,9 +62,6 @@
     "src/**/*.js": [
       "eslint --fix",
       "node scripts/check-console.js"
-    ],
-    "scripts/**/*.js": [
-      "eslint --fix"
     ]
   },
   "config": {

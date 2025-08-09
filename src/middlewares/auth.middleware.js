@@ -1,86 +1,90 @@
-const jwt = require('jsonwebtoken');
-const { AppError } = require('../common/error');
-const { asyncHandler } = require('../common/asyncHandler');
+const { createAppError } = require('../common/error');
+const asyncHandler = require('../common/asyncHandler');
+const JWTUtils = require('../utils/jwt');
 const { User } = require('../models');
 
-/**
- * Authentication Middleware
- * Verifies JWT token and sets user in request object
- */
 const authenticate = asyncHandler(async (req, res, next) => {
-  // Get token from header
   const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new AppError('Access token is required', 401);
-  }
-
-  const token = authHeader.split(' ')[1];
+  const token = JWTUtils.extractTokenFromHeader(authHeader);
 
   if (!token) {
-    throw new AppError('Access token is required', 401);
+    throw createAppError.unauthorized('Access token is required');
   }
 
-  // Verify token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-  // Get user from database
+  const decoded = JWTUtils.verifyToken(token);
   const user = await User.findById(decoded.id);
 
   if (!user) {
-    throw new AppError('User not found', 401);
+    throw createAppError.unauthorized('User not found');
   }
 
-  // Set user in request object
+  if (!user.isActive) {
+    throw createAppError.forbidden('Account is deactivated');
+  }
+
   req.user = user;
   next();
 });
 
-/**
- * Authorization Middleware
- * Checks if user has required role
- */
 const authorize = (...roles) => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
-      throw new AppError('Authentication required', 401);
+      throw createAppError.unauthorized('Authentication required');
     }
 
     if (!roles.includes(req.user.role)) {
-      throw new AppError('Insufficient permissions', 403);
+      throw createAppError.forbidden(
+        `Access denied. Required roles: ${roles.join(', ')}`
+      );
     }
 
     next();
   });
 };
 
-/**
- * Optional Authentication Middleware
- * Sets user in request object if token is provided, but doesn't require it
- */
 const optionalAuth = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization;
+  const token = JWTUtils.extractTokenFromHeader(authHeader);
 
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split(' ')[1];
-
+  if (token) {
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = JWTUtils.verifyToken(token);
       const user = await User.findById(decoded.id);
 
-      if (user) {
+      if (user && user.isActive) {
         req.user = user;
       }
     } catch (_error) {
-      // Ignore token errors for optional auth
+      // Ignore errors for optional auth
     }
   }
 
   next();
 });
 
+const authorizeOwnerOrAdmin = (resourceUserIdField = 'userId') => {
+  return asyncHandler(async (req, res, next) => {
+    if (!req.user) {
+      throw createAppError.unauthorized('Authentication required');
+    }
+
+    const resourceUserId = req.params[resourceUserIdField];
+    const isOwner = req.user._id.toString() === resourceUserId;
+    const isAdmin = req.user.role === 'ADMIN';
+
+    if (!isOwner && !isAdmin) {
+      throw createAppError.forbidden(
+        'Access denied. You can only access your own resources'
+      );
+    }
+
+    next();
+  });
+};
+
 module.exports = {
   authenticate,
   authorize,
-  optionalAuth
+  optionalAuth,
+  authorizeOwnerOrAdmin,
 };

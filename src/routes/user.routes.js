@@ -2,16 +2,18 @@ const express = require('express');
 const userController = require('../controllers/user.controller');
 const userValidation = require('../validations/user.validation');
 const { authenticate, authorize } = require('../middlewares/auth.middleware');
-const { validate, validateQuery, validateParams } = require('../middlewares/validation.middleware');
-const { authLimiter, generalLimiter } = require('../middlewares/rateLimiter.middleware');
+const {
+  validate,
+  validateQuery,
+  validateParams,
+} = require('../middlewares/validation.middleware');
+const {
+  authLimiter,
+  generalLimiter,
+} = require('../middlewares/rateLimiter.middleware');
 
 const router = express.Router();
 
-/**
- * @route   POST /api/users/register
- * @desc    Register a new user
- * @access  Public
- */
 router.post(
   '/register',
   authLimiter,
@@ -19,11 +21,6 @@ router.post(
   userController.register
 );
 
-/**
- * @route   POST /api/users/login
- * @desc    Login user
- * @access  Public
- */
 router.post(
   '/login',
   authLimiter,
@@ -31,23 +28,8 @@ router.post(
   userController.login
 );
 
-/**
- * @route   GET /api/users/profile
- * @desc    Get current user profile
- * @access  Private
- */
-router.get(
-  '/profile',
-  generalLimiter,
-  authenticate,
-  userController.getProfile
-);
+router.get('/profile', generalLimiter, authenticate, userController.getProfile);
 
-/**
- * @route   PUT /api/users/profile
- * @desc    Update current user profile
- * @access  Private
- */
 router.put(
   '/profile',
   generalLimiter,
@@ -56,11 +38,6 @@ router.put(
   userController.updateProfile
 );
 
-/**
- * @route   DELETE /api/users/profile
- * @desc    Delete current user account
- * @access  Private
- */
 router.delete(
   '/profile',
   generalLimiter,
@@ -68,11 +45,6 @@ router.delete(
   userController.deleteAccount
 );
 
-/**
- * @route   GET /api/users
- * @desc    Get all users (Admin only)
- * @access  Private/Admin
- */
 router.get(
   '/',
   generalLimiter,
@@ -82,11 +54,6 @@ router.get(
   userController.getAllUsers
 );
 
-/**
- * @route   GET /api/users/:id
- * @desc    Get user by ID (Admin only)
- * @access  Private/Admin
- */
 router.get(
   '/:id',
   generalLimiter,
@@ -96,11 +63,6 @@ router.get(
   userController.getUserById
 );
 
-/**
- * @route   PATCH /api/users/:id/role
- * @desc    Update user role (Admin only)
- * @access  Private/Admin
- */
 router.patch(
   '/:id/role',
   generalLimiter,
@@ -111,11 +73,6 @@ router.patch(
   userController.updateUserRole
 );
 
-/**
- * @route   DELETE /api/users/:id
- * @desc    Delete user (Admin only)
- * @access  Private/Admin
- */
 router.delete(
   '/:id',
   generalLimiter,

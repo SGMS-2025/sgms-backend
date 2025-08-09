@@ -1,18 +1,9 @@
-/**
- * Environment Configuration
- * Manages different environment settings for development, staging, and production
- */
-
 const dotenv = require('dotenv');
 
-// Load environment variables
 dotenv.config();
 
 const environment = process.env.NODE_ENV || 'development';
 
-/**
- * Database configuration for different environments
- */
 const databaseConfig = {
   development: {
     url: process.env.MONGODB_URI || process.env.DATABASE_URL || buildDatabaseUrl(),
@@ -43,9 +34,6 @@ const databaseConfig = {
   }
 };
 
-/**
- * Build MONGODB_URI from individual environment variables
- */
 function buildDatabaseUrl() {
   const {
     DB_HOST = 'localhost',
@@ -54,19 +42,13 @@ function buildDatabaseUrl() {
     DB_USER = '',
     DB_PASSWORD = ''
   } = process.env;
-
-  // For MongoDB, if no credentials provided, use simple connection
   if (!DB_USER || !DB_PASSWORD) {
     return `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`;
   }
 
-  // With credentials
   return `mongodb://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`;
 }
 
-/**
- * Get default database name based on environment
- */
 function getDefaultDbName() {
   switch (environment) {
   case 'production':
@@ -80,12 +62,9 @@ function getDefaultDbName() {
   }
 }
 
-/**
- * Security configuration for different environments
- */
 const securityConfig = {
   development: {
-    rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000, // 15 minutes
+    rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 900000, 
     rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
     corsOrigins: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:3000', 'http://localhost:3001'],
     jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d'
@@ -104,9 +83,6 @@ const securityConfig = {
   }
 };
 
-/**
- * Logging configuration for different environments
- */
 const loggingConfig = {
   development: {
     level: process.env.LOG_LEVEL || 'debug',
@@ -128,9 +104,6 @@ const loggingConfig = {
   }
 };
 
-/**
- * Validate required environment variables
- */
 function validateEnvironment() {
   const requiredVars = {
     development: ['JWT_SECRET'],
@@ -147,14 +120,11 @@ function validateEnvironment() {
       'Please check your .env file or environment configuration.'
     );
   }
-
-  // Validate JWT secret length for production
   if (environment === 'production' && process.env.JWT_SECRET.length < 32) {
     throw new Error('JWT_SECRET must be at least 32 characters long in production');
   }
 }
 
-// Validate environment on module load
 validateEnvironment();
 
 module.exports = {
@@ -173,9 +143,6 @@ module.exports = {
   isTest: environment === 'test'
 };
 
-/**
- * Get default port based on environment
- */
 function getDefaultPort() {
   switch (environment) {
   case 'production':

@@ -4,92 +4,86 @@ const helmet = require('helmet');
 const compression = require('compression');
 const dotenv = require('dotenv');
 
-// Load environment variables
 dotenv.config();
 
 const logger = require('./config/logger');
-const { globalErrorHandler } = require('./middlewares/error.middleware');
+const {
+  globalErrorHandler,
+  handleNotFound,
+} = require('./middlewares/error.middleware');
 const { apiLimiter } = require('./middlewares/rateLimiter.middleware');
+const requestId = require('./middlewares/requestId.middleware');
 const apiRoutes = require('./routes');
 
-/**
- * Create Express Application
- */
 const app = express();
 
-/**
- * Trust proxy for accurate IP addresses
- */
 app.set('trust proxy', 1);
+app.use(requestId);
 
-/**
- * Security Middleware
- */
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:']
-    }
-  }
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+  })
+);
 
-/**
- * CORS Configuration
- */
-app.use(cors({
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true,
-  optionsSuccessStatus: 200,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || '*',
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'X-Request-ID',
+      'X-Correlation-ID',
+    ],
+  })
+);
 
-/**
- * Compression Middleware
- */
 app.use(compression());
 
-/**
- * Body Parser Middleware
- */
-app.use(express.json({
-  limit: '10mb',
-  verify: (req, res, buf) => {
-    req.rawBody = buf.toString();
-  }
-}));
+app.use(
+  express.json({
+    limit: '10mb',
+    verify: (req, res, buf) => {
+      req.rawBody = buf.toString();
+    },
+  })
+);
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-/**
- * Request Logging Middleware
- */
 app.use((req, res, next) => {
   const start = Date.now();
 
   res.on('finish', () => {
     const duration = Date.now() - start;
-    logger.logRequest(req, res, duration);
+    logger.info('Request completed', {
+      method: req.method,
+      url: req.originalUrl,
+      statusCode: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      requestId: req.id,
+    });
   });
 
   next();
 });
 
-/**
- * Rate Limiting
- */
 app.use('/api', apiLimiter);
 
-/**
- * API Routes
- */
 app.use('/api', apiRoutes);
 
-/**
- * Root Route
- */
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -97,40 +91,32 @@ app.get('/', (req, res) => {
     version: process.env.npm_package_version || '1.0.0',
     environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString(),
+    requestId: req.id,
     endpoints: {
       health: '/api/health',
       users: '/api/users',
-      documentation: '/api/docs'
-    }
+      documentation: '/api/docs',
+    },
   });
 });
 
-/**
- * Global Error Handler
- */
+app.use(handleNotFound);
+
 app.use(globalErrorHandler);
 
-/**
- * Handle Unhandled Promise Rejections
- */
 process.on('unhandledRejection', (err, promise) => {
-  logger.error('Unhandled Promise Rejection:', err);
-  // Close server & exit process
+  logger.error('Unhandled Promise Rejection:', {
+    error: err.message,
+    stack: err.stack,
+  });
   process.exit(1);
 });
 
-/**
- * Handle Uncaught Exceptions
- */
 process.on('uncaughtException', (err) => {
-  logger.error('Uncaught Exception:', err);
-  // Close server & exit process
+  logger.error('Uncaught Exception:', { error: err.message, stack: err.stack });
   process.exit(1);
 });
 
-/**
- * Graceful Shutdown
- */
 process.on('SIGTERM', () => {
   logger.info('SIGTERM received. Shutting down gracefully...');
   process.exit(0);
