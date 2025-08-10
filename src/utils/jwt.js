@@ -11,9 +11,16 @@ class JWTUtils {
 
     const jwtOptions = { ...defaultOptions, ...options };
 
-    const tokenPayload =
-      typeof payload === 'string' ? { id: payload } : payload;
-
+    let tokenPayload;
+    if (typeof payload === 'string') {
+      tokenPayload = { id: payload };
+    } else if (payload && typeof payload === 'object' && payload.toString) {
+      tokenPayload = { id: payload.toString() };
+    } else if (payload && typeof payload === 'object') {
+      tokenPayload = JSON.parse(JSON.stringify(payload));
+    } else {
+      tokenPayload = { id: String(payload) };
+    }
     return jwt.sign(tokenPayload, process.env.JWT_SECRET, jwtOptions);
   }
 

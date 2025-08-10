@@ -20,7 +20,11 @@ class UserService {
     });
 
     const savedUser = await user.save();
-    const token = JWTUtils.generateToken(savedUser._id);
+    const token = JWTUtils.generateToken({
+      id: savedUser._id.toString(),
+      email: savedUser.email,
+      role: savedUser.role,
+    });
 
     logger.info(`User registered successfully: ${email}`);
 
@@ -58,7 +62,11 @@ class UserService {
     user.lastLoginAt = new Date();
     await user.save();
 
-    const token = JWTUtils.generateToken(user._id);
+    const token = JWTUtils.generateToken({
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    });
 
     const userResponse = {
       id: user._id,
