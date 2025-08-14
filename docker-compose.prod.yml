@@ -3,9 +3,7 @@ version: '3.8'
 services:
   # SGMS Backend Application
   sgms-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${DOCKER_HUB_USERNAME}/sgms-backend:latest
     container_name: sgms-backend
     restart: unless-stopped
     environment:
@@ -47,7 +45,8 @@ services:
       - '443:443'
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/html:/var/www/html:ro
       - nginx_logs:/var/log/nginx
     depends_on:
       sgms-backend:

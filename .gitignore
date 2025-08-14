@@ -56,6 +56,13 @@ ssl/
 *.crt
 *.csr
 
+# Shell scripts (created manually on server)
+*.sh
+deploy.sh
+setup-env.sh
+setup-ssl.sh
+monitor.sh
+
 # Docker volumes and temp files
 docker-compose.override.yml
 .docker/
@@ -79,3 +86,5 @@ temp/
 
 # Testing
 .jest/
+
+.tests/
