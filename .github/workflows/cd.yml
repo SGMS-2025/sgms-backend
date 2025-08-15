@@ -123,8 +123,11 @@ jobs:
           
       - name: Copy deployment files
         run: |
-          scp -o StrictHostKeyChecking=no -P 22 docker-compose.prod.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
-          scp -o StrictHostKeyChecking=no -P 22 nginx.conf ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
+          echo "Testing SSH connection..."
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -p 22 ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful'"
+          echo "Copying files..."
+          scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -P 22 docker-compose.prod.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
+          scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -P 22 nginx.conf ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
           
       - name: Deploy to production
         id: deploy
@@ -150,9 +153,9 @@ jobs:
           echo "🏥 Running health checks..."
           sleep 30
           
-          HEALTH_CHECK=$(curl -s -k https://${{ secrets.SSH_HOST }}/api/health || echo "failed")
+          HEALTH_CHECK=$(curl -s -k https://api.gymsmart.site/api/health || echo "failed")
           
-          if [[ $HEALTH_CHECK == *"healthy"* ]]; then
+          if [[ $HEALTH_CHECK == *"success"* ]]; then
             echo "✅ Health check passed!"
             echo "HEALTH_STATUS=healthy" >> $GITHUB_ENV
           else
