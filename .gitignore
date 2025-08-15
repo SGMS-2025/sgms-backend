@@ -56,12 +56,17 @@ ssl/
 *.crt
 *.csr
 
-# Shell scripts (created manually on server)
+# Shell scripts (create manually on server for security)
 *.sh
 deploy.sh
 setup-env.sh
 setup-ssl.sh
 monitor.sh
+quick-setup.sh
+server-check.sh
+
+# Scripts directory (exclude all scripts for security)
+scripts/*.sh
 
 # Docker volumes and temp files
 docker-compose.override.yml

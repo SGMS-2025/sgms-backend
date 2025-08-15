@@ -16,12 +16,21 @@ services:
       RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS}
       RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS}
       LOG_LEVEL: ${LOG_LEVEL}
-    ports:
-      - '5000:5000'
+    expose:
+      - "5000"
     networks:
       - sgms-network
     volumes:
       - ./logs:/app/logs
+      - /etc/localtime:/etc/localtime:ro
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
     healthcheck:
       test:
         [
