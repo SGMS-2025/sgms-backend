@@ -16,7 +16,7 @@ const requiredEnvVars = [
   'PORT',
   'MONGODB_URI',
   'JWT_SECRET',
-  'JWT_EXPIRES_IN'
+  'JWT_EXPIRES_IN',
 ];
 
 // Optional but recommended environment variables
@@ -24,7 +24,7 @@ const recommendedEnvVars = [
   'LOG_LEVEL',
   'CORS_ORIGIN',
   'RATE_LIMIT_WINDOW_MS',
-  'RATE_LIMIT_MAX_REQUESTS'
+  'RATE_LIMIT_MAX_REQUESTS',
 ];
 
 let hasErrors = false;
@@ -39,7 +39,9 @@ console.log('📁 Checking environment files...');
 if (!fs.existsSync(envFile)) {
   console.warn('⚠️  .env file not found');
   if (fs.existsSync(envExampleFile)) {
-    console.log('💡 Please copy .env.example to .env and configure your environment variables');
+    console.log(
+      '💡 Please copy .env.example to .env and configure your environment variables'
+    );
   }
   hasWarnings = true;
 } else {
@@ -59,7 +61,7 @@ require('dotenv').config();
 console.log('\n🔍 Validating required environment variables...');
 
 // Check required environment variables
-requiredEnvVars.forEach(envVar => {
+requiredEnvVars.forEach((envVar) => {
   if (!process.env[envVar]) {
     console.error(`❌ Missing required environment variable: ${envVar}`);
     hasErrors = true;
@@ -71,7 +73,7 @@ requiredEnvVars.forEach(envVar => {
 console.log('\n🔍 Checking recommended environment variables...');
 
 // Check recommended environment variables
-recommendedEnvVars.forEach(envVar => {
+recommendedEnvVars.forEach((envVar) => {
   if (!process.env[envVar]) {
     console.warn(`⚠️  Recommended environment variable not set: ${envVar}`);
     hasWarnings = true;
@@ -90,7 +92,10 @@ if (process.env.JWT_SECRET && process.env.JWT_SECRET.length < 32) {
 }
 
 // Port validation
-if (process.env.PORT && (isNaN(process.env.PORT) || process.env.PORT < 1 || process.env.PORT > 65535)) {
+if (
+  process.env.PORT &&
+  (isNaN(process.env.PORT) || process.env.PORT < 1 || process.env.PORT > 65535)
+) {
   console.error('❌ PORT must be a valid port number (1-65535)');
   hasErrors = true;
 }
@@ -102,8 +107,15 @@ if (process.env.MONGODB_URI && !process.env.MONGODB_URI.startsWith('mongodb')) {
 }
 
 // Node Environment validation
-if (process.env.NODE_ENV && !['development', 'staging', 'production', 'test'].includes(process.env.NODE_ENV)) {
-  console.warn('⚠️  NODE_ENV should be one of: development, staging, production, test');
+if (
+  process.env.NODE_ENV &&
+  !['development', 'staging', 'production', 'test'].includes(
+    process.env.NODE_ENV
+  )
+) {
+  console.warn(
+    '⚠️  NODE_ENV should be one of: development, staging, production, test'
+  );
   hasWarnings = true;
 }
 
@@ -115,10 +127,10 @@ const criticalFiles = [
   'src/app.js',
   'src/config/database.js',
   'src/config/environment.js',
-  'src/config/logger.js'
+  'src/config/logger.js',
 ];
 
-criticalFiles.forEach(file => {
+criticalFiles.forEach((file) => {
   if (!fs.existsSync(path.join(__dirname, file))) {
     console.error(`❌ Critical file missing: ${file}`);
     hasErrors = true;

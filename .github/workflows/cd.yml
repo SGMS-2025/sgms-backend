@@ -37,6 +37,16 @@ jobs:
         run: npm ci
         
       - name: Run full test suite
+        env:
+          NODE_ENV: ${{ secrets.NODE_ENV }}
+          PORT: ${{ secrets.PORT }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
+          RATE_LIMIT_WINDOW_MS: ${{ secrets.RATE_LIMIT_WINDOW_MS }}
+          RATE_LIMIT_MAX_REQUESTS: ${{ secrets.RATE_LIMIT_MAX_REQUESTS }}
         run: |
           npm run lint
           npm test
