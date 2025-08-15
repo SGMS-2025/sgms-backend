@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:20-alpine
 
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nodeuser -u 1001
@@ -7,7 +7,8 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --only=production && npm cache clean --force
+# Skip prepare script (husky) during Docker build
+RUN npm ci --only=production --ignore-scripts && npm cache clean --force
 
 COPY --chown=nodeuser:nodejs . .
 
