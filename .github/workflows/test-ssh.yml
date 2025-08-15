@@ -1,0 +1,31 @@
+name: Test SSH Connection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-ssh:
+    name: Test SSH Connection
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Test SSH Connection
+        run: |
+          echo "Testing SSH connection to ${{ secrets.SSH_HOST }}..."
+          
+          # Test basic connectivity
+          echo "=== Testing network connectivity ==="
+          ping -c 3 ${{ secrets.SSH_HOST }} || echo "Ping failed"
+          
+          # Test SSH port
+          echo "=== Testing SSH port ==="
+          nc -zv ${{ secrets.SSH_HOST }} 22 || echo "SSH port test failed"
+          
+          # Test SSH connection
+          echo "=== Testing SSH authentication ==="
+          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -v ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful'; whoami; pwd"
