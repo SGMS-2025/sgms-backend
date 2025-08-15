@@ -121,19 +121,15 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           
-      - name: Add server to known hosts
-        run: |
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          
       - name: Copy deployment files
         run: |
-          scp -o StrictHostKeyChecking=no docker-compose.prod.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
-          scp -o StrictHostKeyChecking=no nginx.conf ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
+          scp -o StrictHostKeyChecking=no -P 22 docker-compose.prod.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
+          scp -o StrictHostKeyChecking=no -P 22 nginx.conf ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
           
       - name: Deploy to production
         id: deploy
         run: |
-          ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p 22 ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} << 'EOF'
           cd ~/sgms-backend
           
           echo "🔄 Pulling latest code..."
