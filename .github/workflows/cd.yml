@@ -194,7 +194,8 @@ jobs:
             done
           }
           
-          # Execute deployment commands with retry
+          # Execute deployment commands with retry (force clean state)
+          retry_ssh "cd ~/sgms-backend && echo '🧹 Force resetting to clean state...' && git reset --hard HEAD"
           retry_ssh "cd ~/sgms-backend && echo '🔄 Pulling latest code...' && git pull origin main"
           retry_ssh "echo '🏗️ Pulling latest Docker image...' && docker pull ${{ env.DOCKER_HUB_USERNAME }}/sgms-backend:latest"
           retry_ssh "cd ~/sgms-backend && echo '🚀 Deploying application...' && chmod +x deploy.sh && ./deploy.sh"
