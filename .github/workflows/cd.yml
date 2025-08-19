@@ -123,18 +123,49 @@ jobs:
           
       - name: Copy deployment files
         run: |
-          echo "🔍 Testing network connectivity..."
-          ping -c 3 ${{ secrets.SSH_HOST }} || echo "⚠️ Ping failed, but continuing..."
+          echo "🔍 Pre-deployment connectivity checks..."
           
-          echo "🔍 Testing SSH port accessibility..."
-          nc -zv ${{ secrets.SSH_HOST }} 22 || echo "⚠️ SSH port test failed"
+          # Test network connectivity with timeout
+          echo "Testing ping to ${{ secrets.SSH_HOST }}..."
+          if ! timeout 10 ping -c 2 ${{ secrets.SSH_HOST }}; then
+            echo "⚠️ Ping failed - checking if server is behind proxy..."
+          fi
           
-          echo "🔑 Testing SSH connection..."
-          ssh -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60 -p 22 ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful'; whoami; pwd"
+          # Test SSH port with explicit timeout
+          echo "Testing SSH port accessibility..."
+          if ! timeout 10 nc -zv ${{ secrets.SSH_HOST }} 22; then
+            echo "❌ SSH port 22 is not accessible"
+            echo "This usually means:"
+            echo "1. Server firewall is blocking SSH"
+            echo "2. Domain is proxied through Cloudflare (use direct IP)"
+            echo "3. SSH is running on different port"
+            echo "4. Server is down"
+            exit 1
+          fi
+          
+          # Test SSH authentication
+          echo "🔑 Testing SSH authentication..."
+          if ! ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o BatchMode=yes ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }} "echo 'SSH connection successful'; whoami"; then
+            echo "❌ SSH authentication failed"
+            echo "Check:"
+            echo "1. SSH private key is correct"
+            echo "2. Public key is in ~/.ssh/authorized_keys"
+            echo "3. SSH service is running on server"
+            exit 1
+          fi
+          
+          echo "✅ SSH connection verified successfully"
           
           echo "📁 Copying deployment files..."
-          scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60 -P 22 docker-compose.prod.yml ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
-          scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60 -P 22 nginx.conf ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/
+          # Copy with retry mechanism
+          for file in docker-compose.prod.yml nginx.conf; do
+            echo "Copying $file..."
+            if ! scp -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=60 -P 22 "$file" ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:~/sgms-backend/; then
+              echo "❌ Failed to copy $file"
+              exit 1
+            fi
+            echo "✅ Successfully copied $file"
+          done
           
       - name: Deploy to production
         id: deploy
