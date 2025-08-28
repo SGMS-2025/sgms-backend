@@ -1,332 +1,98 @@
-# 🚀 SGMS Backend - Deployment Ready
+<div align="center">
 
-> **Gym Smart Management System Backend** - Sẵn sàng deploy lên EC2 với Docker và Nginx
+# 🏋️‍♂️ SGMS Backend
 
-## 📋 Tổng quan
+**Smart Gym Management System - Backend API**
 
-Đây là backend API cho hệ thống SGMS được thiết kế với Clean Architecture, sẵn sàng production và deploy lên AWS EC2.
+[![Node.js](https://img.shields.io/badge/Node.js-v18+-green.svg)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express-v4.18-blue.svg)](https://expressjs.com/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-v6+-darkgreen.svg)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-ISC-yellow.svg)](LICENSE)
 
-**Tech Stack:**
+_Production-ready backend API với Clean Architecture, Docker deployment và comprehensive security_
 
-- ⚡ **Node.js** + Express.js
-- 🗄️ **MongoDB** với Mongoose
-- 🐳 **Docker** & Docker Compose
-- 🌐 **Nginx** reverse proxy
-- 🔐 **JWT** authentication
-- 🛡️ **Security**: Helmet, CORS, Rate limiting
-- 📊 **Logging**: Winston
-- ✅ **Validation**: Joi
-
-## 🎯 Architecture
-
-```
-┌─────────────────┐    ┌──────────────┐    ┌─────────────────┐    ┌──────────────┐
-│   Internet      │    │    Nginx     │    │  Docker Node.js │    │   MongoDB    │
-│                 │───▶│              │───▶│                 │───▶│              │
-│ (HTTPS Traffic) │    │ (SSL/Proxy)  │    │   (Backend)     │    │ (Database)   │
-└─────────────────┘    └──────────────┘    └─────────────────┘    └──────────────┘
-```
-
-## 🚀 Deploy Nhanh (1 lệnh duy nhất)
-
-### Trên Windows (Development Test)
-
-```powershell
-# Test local trước khi deploy
-.\dev.ps1 test
-.\dev.ps1 build
-```
-
-### Trên Linux/EC2 (Production)
-
-```bash
-# Chỉ cần 1 lệnh này!
-chmod +x deploy.sh && ./deploy.sh
-```
-
-**Script tự động:**
-
-- ✅ Cài Docker/Docker Compose
-- ✅ Setup environment
-- ✅ Generate SSL certificates
-- ✅ Build và deploy containers
-- ✅ Configure Nginx + MongoDB
-- ✅ Setup monitoring & health checks
-
-## 📁 Files Deploy Quan trọng
-
-```
-📦 sgms-backend/
-├── 🐳 Dockerfile                 # Container definition
-├── 🐳 docker-compose.prod.yml    # Production services
-├── 🌐 nginx.conf                 # Nginx configuration
-├── 🚀 deploy.sh                  # Main deploy script
-├── 💻 dev.ps1                    # Windows development script
-├── 📋 DEPLOYMENT.md              # Chi tiết hướng dẫn deploy
-├── 🔐 .env.production.example    # Environment template
-└── 📚 ARCHITECTURE.md            # Kiến trúc hệ thống
-```
-
-## 🎯 Endpoints API
-
-### Health Check
-
-```bash
-GET /api/health
-```
-
-### Authentication
-
-```bash
-POST /api/users/register    # Đăng ký
-POST /api/users/login       # Đăng nhập
-```
-
-### User Management
-
-```bash
-GET    /api/users/profile      # Xem profile
-PUT    /api/users/profile      # Cập nhật profile
-DELETE /api/users/profile      # Xóa account
-```
-
-### Admin Only
-
-```bash
-GET    /api/users              # Danh sách users
-GET    /api/users/:id          # User theo ID
-PATCH  /api/users/:id/role     # Cập nhật role
-DELETE /api/users/:id          # Xóa user
-```
-
-## 🔧 Development Commands
-
-```bash
-# Development
-npm run dev                    # Start with nodemon
-npm start                     # Production start
-npm test                      # Run tests
-npm run lint:check            # Code style check
-
-# Docker Local
-.\dev.ps1 start               # Start dev containers
-.\dev.ps1 stop                # Stop containers
-.\dev.ps1 logs                # View logs
-.\dev.ps1 test                # Run tests
-```
-
-## 🌐 Production Deploy Steps
-
-### 1. Ubuntu Server Setup (Tự động)
-
-```bash
-# SSH vào EC2 và chạy setup script
-curl -fsSL https://raw.githubusercontent.com/your-repo/sgms-backend/main/ubuntu-setup.sh -o ubuntu-setup.sh
-chmod +x ubuntu-setup.sh && ./ubuntu-setup.sh
-```
-
-### 2. Upload Source Code
-
-```bash
-# Option 1: Git clone (khuyến nghị)
-git clone https://github.com/your-repo/sgms-backend.git ~/sgms-backend
-
-# Option 2: SCP upload
-scp -r ./sgms-backend ubuntu@your-ec2-ip:~/
-```
-
-### 3. Setup Environment (🔐 Bảo mật)
-
-```bash
-cd ~/sgms-backend
-./setup-env.sh  # Interactive setup - KHÔNG upload .env files từ local!
-```
-
-### 4. Deploy (1 lệnh)
-
-```bash
-./deploy.sh     # All-in-one deployment
-```
-
-### 5. Quick Commands
-
-```bash
-./sgms-commands.sh start    # Start services
-./sgms-commands.sh status   # Check health
-./sgms-commands.sh logs     # View logs
-```
-
-# Option 1: Git clone
-
-git clone https://github.com/your-repo/sgms-backend.git
-
-# Option 2: SCP upload
-
-scp -r ./sgms-backend ubuntu@your-ec2-ip:~/
-
-````
-
-### 3. Deploy (1 lệnh)
-
-```bash
-cd sgms-backend
-chmod +x deploy.sh
-./deploy.sh
-````
-
-### 4. Cấu hình Domain & SSL
-
-```bash
-# Cập nhật DNS record: your-domain.com → EC2 IP
-# Script sẽ tạo self-signed SSL, production nên dùng Let's Encrypt:
-sudo certbot --nginx -d your-domain.com
-```
-
-## 🛡️ Security Features
-
-- 🔐 **JWT Authentication** với secure cookies
-- 🛡️ **Helmet** security headers
-- 🚫 **Rate Limiting** chống spam/DDoS
-- 🔒 **CORS** protection
-- 📊 **Request logging** với Winston
-- 🔑 **Password hashing** với bcryptjs
-- 🌐 **SSL/TLS** termination
-
-## 📊 Monitoring & Health
-
-```bash
-# Health check
-curl https://your-domain.com/api/health
-
-# Monitor services
-./deploy.sh monitor
-
-# View logs
-./deploy.sh logs
-
-# Restart services
-./deploy.sh restart
-```
-
-## 🔄 Environment Configuration
-
-### Development (.env)
-
-```env
-NODE_ENV=development
-PORT=3000
-MONGODB_URI=mongodb://localhost:27017/sgms_dev
-JWT_SECRET=dev-secret-key-at-least-32-chars
-LOG_LEVEL=debug
-```
-
-### Production (.env.production)
-
-```env
-NODE_ENV=production
-PORT=5000
-MONGODB_URI=mongodb://user:pass@mongodb:27017/sgms_production
-JWT_SECRET=secure-production-secret-minimum-32-characters
-CORS_ORIGIN=https://yourdomain.com
-LOG_LEVEL=warn
-```
-
-## 🚨 Troubleshooting
-
-### Services không start
-
-```bash
-# Check logs
-./deploy.sh logs
-
-# Check health
-./deploy.sh health
-
-# Restart
-./deploy.sh restart
-```
-
-### API không accessible
-
-```bash
-# Test local
-curl http://localhost:5000/api/health
-
-# Check firewall
-sudo ufw status
-
-# Check nginx
-docker exec sgms-nginx nginx -t
-```
-
-### Database issues
-
-```bash
-# MongoDB health
-docker exec sgms-mongodb mongosh --eval "db.adminCommand('ping')"
-
-# Reset database
-docker-compose -f docker-compose.prod.yml down
-docker volume rm sgms-backend_mongodb_data
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-## � Security & Environment
-
-### ⚠️ QUAN TRỌNG: Environment Files
-
-- ✅ **`.env.production`** - Tạo TRỰC TIẾP trên server
-- ❌ **KHÔNG** upload file `.env` từ local lên server
-- 🛡️ File permissions: 600 (owner read/write only)
-- 🚫 Được protect bởi `.gitignore` - KHÔNG commit
-
-### 🔧 Environment Management
-
-```bash
-./setup-env.sh              # Interactive setup
-./setup-env.sh validate     # Validate existing
-./setup-env.sh backup       # Create backup
-```
-
-### 📋 Required Variables (Production)
-
-```env
-NODE_ENV=production
-MONGO_ROOT_PASSWORD=xxx      # STRONG password
-JWT_SECRET=xxx               # Min 32 chars
-CORS_ORIGIN=https://domain   # Your domain
-# ... see SECURITY.md for full list
-```
-
-## �📈 Performance & Scaling
-
-- 🐳 **Container**: Optimized multi-stage build
-- 🌐 **Nginx**: HTTP/2, gzip, caching
-- 🗄️ **MongoDB**: Indexes, connection pooling
-- 📊 **Monitoring**: Auto health checks
-- 🔄 **Auto-restart**: Production resilience
-
-## 🎉 Sau khi Deploy thành công
-
-- ✅ **API**: https://your-domain.com/api
-- ✅ **Health**: https://your-domain.com/api/health
-- ✅ **SSL**: Enabled với rate limiting
-- ✅ **Database**: MongoDB secured
-- ✅ **Monitoring**: Auto setup
-- ✅ **Logs**: Centralized logging
-
-## 📞 Support & Documentation
-
-- � **Security Guide**: [SECURITY.md](./SECURITY.md)
-- �📋 **Deployment Guide**: [DEPLOYMENT.md](./DEPLOYMENT.md)
-- 🏗️ **Architecture**: [ARCHITECTURE.md](./ARCHITECTURE.md)
-- � **Environment**: [ENVIRONMENT.md](./ENVIRONMENT.md)
-- �🐳 **Docker**: docker-compose.prod.yml
-- 🌐 **Nginx**: nginx.conf
-- � **Scripts**: deploy.sh, setup-env.sh, ubuntu-setup.sh
+</div>
 
 ---
 
-**🎯 Ready for Production!**
+## 📋 Tổng quan
 
-Hệ thống được thiết kế để deploy nhanh chóng, bảo mật và stable cho production environment với environment management an toàn.
+SGMS Backend là hệ thống API RESTful được xây dựng cho việc quản lý phòng gym thông minh. Được thiết kế với **Clean Architecture**, đảm bảo tính mở rộng, bảo trì và sẵn sàng production.
+
+### ✨ Điểm nổi bật
+
+- 🏗️ **Clean Architecture** - Tách biệt rõ ràng các layer
+- 🚀 **Production Ready** - Docker, Nginx, SSL/TLS
+- 🔐 **Security First** - JWT, Rate limiting, Helmet
+- � **Monitoring** - Winston logging, Health checks
+- 🧪 **Tested** - Jest testing framework
+- � **Well Documented** - API docs và deployment guides
+
+### 🛠️ Tech Stack
+
+| Category           | Technology                  |
+| ------------------ | --------------------------- |
+| **Runtime**        | Node.js 18+                 |
+| **Framework**      | Express.js                  |
+| **Database**       | MongoDB + Mongoose          |
+| **Authentication** | JWT (jsonwebtoken)          |
+| **Security**       | Helmet, CORS, Rate Limiting |
+| **Validation**     | Joi                         |
+| **Logging**        | Winston                     |
+| **Testing**        | Jest + Supertest            |
+| **Deployment**     | Docker + Docker Compose     |
+| **Reverse Proxy**  | Nginx                       |
+| **Development**    | Nodemon, ESLint, Husky      |
+
+### 📂 Cấu trúc dự án
+
+```
+📦 sgms-backend/
+├── 📁 src/                          # Source code chính
+│   ├── 📄 app.js                    # Express app configuration
+│   ├── 📄 index.js                  # Entry point
+│   ├── 📁 common/                   # Shared utilities
+│   │   ├── 📄 asyncHandler.js       # Async error handling
+│   │   ├── 📄 error.js              # Custom error classes
+│   │   └── 📄 response.js           # Standardized responses
+│   ├── 📁 config/                   # Configuration files
+│   │   ├── 📄 database.js           # MongoDB connection
+│   │   ├── 📄 environment.js        # Environment variables
+│   │   └── 📄 logger.js             # Winston logger setup
+│   ├── 📁 controllers/              # Request handlers
+│   ├── 📁 middlewares/              # Express middlewares
+│   ├── 📁 models/                   # Mongoose schemas
+│   ├── 📁 routes/                   # API route definitions
+│   ├── 📁 services/                 # Business logic
+│   ├── 📁 utils/                    # Helper functions
+│   └── 📁 validations/              # Joi validation schemas
+├── 📁 scripts/                      # Deployment & utility scripts
+├── 🐳 Dockerfile                    # Container definition
+├── 🐳 docker-compose.prod.yml       # Production services
+├── 🌐 nginx.conf                    # Nginx configuration
+├── 🚀 deploy.sh                     # One-click deployment
+└── 📋 package.json                  # Dependencies & scripts
+```
+
+### 📋 Code Standards
+
+- **✅ ESLint**: Code linting và formatting
+- **🧪 Jest**: Comprehensive test coverage
+- **📝 Commitizen**: Conventional commit messages
+- **🔍 Husky**: Pre-commit và pre-push hooks
+- **📚 JSDoc**: Code documentation
+
+<div align="center">
+
+## 🎯 Ready for Production!
+
+**SGMS Backend** được thiết kế để deployment nhanh chóng, bảo mật cao và stable cho production environment với environment management an toàn.
+
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red.svg)](https://github.com/SGMS-2025/sgms-backend)
+[![Deploy Ready](https://img.shields.io/badge/Deploy-Ready-brightgreen.svg)](https://github.com/SGMS-2025/sgms-backend)
+[![Security First](https://img.shields.io/badge/Security-First-blue.svg)](https://github.com/SGMS-2025/sgms-backend)
+
+**Happy Coding! 🚀**
+
+</div>

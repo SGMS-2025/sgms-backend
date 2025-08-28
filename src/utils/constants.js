@@ -13,9 +13,89 @@ const CONSTANTS = {
   },
 
   USER_ROLES: {
-    USER: 'USER',
+    CUSTOMER: 'CUSTOMER',
+    PT: 'PT',
+    TECHNICIAN: 'TECHNICIAN',
+    OWNER: 'OWNER',
+    MANAGER: 'MANAGER',
     ADMIN: 'ADMIN',
-    MODERATOR: 'MODERATOR',
+  },
+
+  ROLE_HIERARCHY: {
+    CUSTOMER: 1,
+    PT: 2,
+    TECHNICIAN: 3,
+    OWNER: 4,
+    MANAGER: 5,
+    ADMIN: 6,
+  },
+
+  ROLE_PERMISSIONS: {
+    CUSTOMER: [
+      'profile:read',
+      'profile:update',
+      'membership:read',
+      'schedule:read',
+      'booking:create',
+      'booking:read',
+      'booking:cancel',
+      'payment:read',
+      'notification:read',
+    ],
+    PT: [
+      'profile:read',
+      'profile:update',
+      'schedule:read',
+      'schedule:manage',
+      'client:read',
+      'client:update',
+      'workout:create',
+      'workout:read',
+      'workout:update',
+      'progress:read',
+      'progress:update',
+      'booking:read',
+      'notification:read',
+    ],
+    TECHNICIAN: [
+      'profile:read',
+      'profile:update',
+      'equipment:read',
+      'equipment:update',
+      'equipment:maintain',
+      'maintenance:create',
+      'maintenance:read',
+      'maintenance:update',
+      'inventory:read',
+      'inventory:update',
+      'notification:read',
+    ],
+    OWNER: [
+      'profile:read',
+      'profile:update',
+      'users:read',
+      'users:create',
+      'users:update',
+      'staff:manage',
+      'schedule:manage',
+      'equipment:manage',
+      'gym:read',
+      'gym:update',
+      'membership:manage',
+      'payment:read',
+      'report:read',
+      'setting:read',
+      'setting:update',
+      'notification:manage',
+    ],
+    MANAGER: ['*'],
+    ADMIN: ['*'],
+  },
+
+  USER_STATUS: {
+    ACTIVE: 'ACTIVE',
+    INACTIVE: 'INACTIVE',
+    SUSPENDED: 'SUSPENDED',
   },
 
   TOKEN_TYPES: {
@@ -75,11 +155,35 @@ const SUCCESS_MESSAGES = {
   USER_FOUND: 'User retrieved successfully',
   LOGIN_SUCCESS: 'Login successful',
   LOGOUT_SUCCESS: 'Logout successful',
-
+  REGISTER_SUCCESS: 'Registration successful',
+  PASSWORD_CHANGED: 'Password changed successfully',
+  EMAIL_VERIFIED: 'Email verified successfully',
+  PROFILE_UPDATED: 'Profile updated successfully',
   OPERATION_SUCCESS: 'Operation completed successfully',
   DATA_RETRIEVED: 'Data retrieved successfully',
   DATA_UPDATED: 'Data updated successfully',
   DATA_DELETED: 'Data deleted successfully',
+};
+
+const ERROR_MESSAGES = {
+  USER_NOT_FOUND: 'User not found',
+  USER_ALREADY_EXISTS: 'User already exists',
+  USERNAME_ALREADY_EXISTS: 'Username already exists',
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  ACCOUNT_LOCKED: 'Account is temporarily locked',
+  ACCOUNT_SUSPENDED: 'Account has been suspended',
+  ACCOUNT_INACTIVE: 'Account is not active',
+  UNAUTHORIZED_ACCESS: 'Unauthorized access',
+  INSUFFICIENT_PERMISSIONS: 'Insufficient permissions',
+  INVALID_TOKEN: 'Invalid or expired token',
+  EMAIL_NOT_VERIFIED: 'Email not verified',
+
+  VALIDATION_FAILED: 'Validation failed',
+  INVALID_INPUT: 'Invalid input data',
+  MISSING_REQUIRED_FIELDS: 'Missing required fields',
+
+  INTERNAL_ERROR: 'Internal server error',
+  SERVICE_UNAVAILABLE: 'Service temporarily unavailable',
 };
 
 const DEFAULT_CONFIG = {
@@ -105,9 +209,34 @@ const DEFAULT_CONFIG = {
   },
 };
 
+const AUTH_MESSAGES = {
+  ACCESS_TOKEN_REQUIRED: 'Access token is required',
+  USER_NOT_FOUND: 'User not found',
+  ACCOUNT_DEACTIVATED: 'Account is deactivated',
+  AUTHENTICATION_REQUIRED: 'Authentication required',
+  ACCESS_DENIED_ROLES: (roles) =>
+    `Access denied. Required roles: ${roles.join(', ')}`,
+  INVALID_ROLE_CONFIGURATION: 'Invalid role configuration',
+  ACCESS_DENIED_MIN_ROLE: (minRole) =>
+    `Access denied. Minimum role required: ${minRole}`,
+  ACCESS_DENIED_PERMISSIONS: (permissions) =>
+    `Access denied. Required permissions: ${permissions.join(', ')}`,
+  ACCESS_DENIED_OWNER_OR_ADMIN:
+    'Access denied. You can only access your own resources or need admin privileges',
+  ACCESS_DENIED_OWNER_REQUIRED: 'Access denied. Owner level access required',
+  ACCESS_DENIED_STAFF_REQUIRED: 'Access denied. Staff access required',
+  ACCESS_DENIED_MANAGEMENT_REQUIRED:
+    'Access denied. Management access required',
+  ACCESS_DENIED_ADMIN_REQUIRED: 'Access denied. Admin access required',
+  ACCESS_DENIED_GYM_ACCESS:
+    'Access denied. You do not have access to this gym/facility',
+};
+
 module.exports = {
   CONSTANTS,
   REGEX,
   SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
   DEFAULT_CONFIG,
+  AUTH_MESSAGES,
 };

@@ -7,12 +7,17 @@ const validate = (schema, property = 'body') => {
     });
 
     if (error) {
+      error.isJoi = true;
       return next(error);
     }
 
     req[property] = value;
     next();
   };
+};
+
+const validateRequest = (schema) => {
+  return validate(schema, 'body');
 };
 
 const validateQuery = (schema) => {
@@ -29,6 +34,7 @@ const validateBody = (schema) => {
 
 module.exports = {
   validate,
+  validateRequest,
   validateQuery,
   validateParams,
   validateBody,

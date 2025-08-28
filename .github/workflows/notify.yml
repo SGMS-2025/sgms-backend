@@ -26,6 +26,8 @@ jobs:
           URL: ${{ github.event.pull_request.html_url }}
           AUTHOR: ${{ github.event.pull_request.user.login }}
           COMMIT_MSG: ${{ steps.get-commit.outputs.msg }}
+          DEV_ROLE_ID: ${{ secrets.DEV_ROLE_ID }}
+
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
@@ -33,7 +35,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d @- <<EOF
           {
-            "content": "@everyone",
+            "content": "<@&$DEV_ROLE_ID>",
             "embeds": [
               {
                 "title": "📢 New SGMS Backend Pull Request: ${TITLE}",

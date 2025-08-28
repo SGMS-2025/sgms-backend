@@ -1,5 +1,6 @@
-const userValidation = require('./user.validation');
+const { registerSchema, loginSchema } = require('./auth.validation');
 
 module.exports = {
-  userValidation
+  registerSchema,
+  loginSchema,
 };

@@ -64,7 +64,7 @@ const mapMongooseError = (err) => {
   }
 
   if (err.name === 'ValidationError') {
-    const details = Object.values(err.errors).map((e) => ({
+    const details = Object.values(err.errors || {}).map((e) => ({
       field: e.path,
       message: e.message,
       value: e.value,
