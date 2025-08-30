@@ -1,5 +1,13 @@
 const winston = require('winston');
 const path = require('path');
+const config = require('./environment');
+
+const {
+  level: logLevel,
+  format: logFormat,
+  enableConsole,
+  enableFile,
+} = config.logging;
 
 const levels = {
   error: 0,
@@ -18,13 +26,7 @@ const colors = {
 };
 winston.addColors(colors);
 
-const level = () => {
-  const env = process.env.NODE_ENV || 'development';
-  const isDevelopment = env === 'development';
-  return isDevelopment ? 'debug' : 'warn';
-};
-
-const format = winston.format.combine(
+const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.colorize({ all: true }),
   winston.format.printf(
@@ -35,35 +37,42 @@ const format = winston.format.combine(
 const fileFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
   winston.format.errors({ stack: true }),
-  winston.format.json()
+  logFormat === 'json' ? winston.format.json() : winston.format.simple()
 );
 
 const logDir = path.join(process.cwd(), 'logs');
 
-const transports = [
-  new winston.transports.Console({
-    level: level(),
-    format,
-  }),
+const transports = [];
 
-  new winston.transports.File({
-    filename: path.join(logDir, 'error.log'),
-    level: 'error',
-    format: fileFormat,
-    maxsize: 5242880,
-    maxFiles: 5,
-  }),
+if (enableConsole) {
+  transports.push(
+    new winston.transports.Console({
+      level: logLevel,
+      format: consoleFormat,
+    })
+  );
+}
 
-  new winston.transports.File({
-    filename: path.join(logDir, 'combined.log'),
-    format: fileFormat,
-    maxsize: 5242880,
-    maxFiles: 5,
-  }),
-];
+if (enableFile) {
+  transports.push(
+    new winston.transports.File({
+      filename: path.join(logDir, 'error.log'),
+      level: 'error',
+      format: fileFormat,
+      maxsize: 5242880,
+      maxFiles: 5,
+    }),
+    new winston.transports.File({
+      filename: path.join(logDir, 'combined.log'),
+      format: fileFormat,
+      maxsize: 5242880,
+      maxFiles: 5,
+    })
+  );
+}
 
 const logger = winston.createLogger({
-  level: level(),
+  level: logLevel,
   levels,
   format: fileFormat,
   transports,

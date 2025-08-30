@@ -2,11 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
 dotenv.config();
 
 const logger = require('./config/logger');
+const config = require('./config/environment');
 const {
   globalErrorHandler,
   handleNotFound,
@@ -36,13 +38,10 @@ app.use(
 app.use(
   cors({
     origin: function (origin, callback) {
-      const allowedOrigins = process.env.CORS_ORIGIN 
-        ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
-        : ['http://localhost:3000', 'http://localhost:3001'];
-      
-      // Allow requests with no origin (mobile apps, postman, etc.)
+      const allowedOrigins = config.security.corsOrigins;
+
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
         return callback(null, true);
       } else {
@@ -63,6 +62,7 @@ app.use(
 );
 
 app.use(compression());
+app.use(cookieParser());
 
 app.use(
   express.json({
@@ -98,9 +98,9 @@ app.use('/api', apiLimiter);
 app.use('/api', apiRoutes);
 
 app.get('/', (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
-    message: 'SGMS Backend API Server',
+    message: 'SGMS Backend API',
     version: process.env.npm_package_version || '1.0.0',
     environment: process.env.NODE_ENV || 'development',
     timestamp: new Date().toISOString(),

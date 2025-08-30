@@ -81,6 +81,33 @@ class UserService {
       ...tokens,
     };
   }
+
+  async refreshToken(refreshToken) {
+    const decoded = JWTUtils.verifyToken(refreshToken);
+
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      throw createAppError.unauthorized(ERROR_MESSAGES.USER_NOT_FOUND);
+    }
+
+    if (user.status !== CONSTANTS.USER_STATUS.ACTIVE) {
+      throw createAppError.forbidden(ERROR_MESSAGES.ACCOUNT_INACTIVE);
+    }
+
+    const tokenPayload = {
+      id: user._id.toString(),
+      email: user.email,
+      role: user.role,
+    };
+
+    const tokens = JWTUtils.generateTokenPair(tokenPayload);
+
+    return {
+      user: user.toJSON(),
+      ...tokens,
+    };
+  }
 }
 
 module.exports = new UserService();

@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { createAppError } = require('../common/error');
+const config = require('../config/environment');
 
 class JWTUtils {
   static generateToken(payload, options = {}) {
     const defaultOptions = {
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
+      expiresIn: config.jwt.expiresIn,
       issuer: process.env.JWT_ISSUER || 'sgms-backend',
       audience: process.env.JWT_AUDIENCE || 'sgms-frontend',
     };
@@ -14,14 +15,13 @@ class JWTUtils {
     let tokenPayload;
     if (typeof payload === 'string') {
       tokenPayload = { id: payload };
-    } else if (payload && typeof payload === 'object' && payload.toString) {
-      tokenPayload = { id: payload.toString() };
     } else if (payload && typeof payload === 'object') {
       tokenPayload = JSON.parse(JSON.stringify(payload));
     } else {
       tokenPayload = { id: String(payload) };
     }
-    return jwt.sign(tokenPayload, process.env.JWT_SECRET, jwtOptions);
+
+    return jwt.sign(tokenPayload, config.jwt.secret, jwtOptions);
   }
 
   static generateRefreshToken(payload) {
@@ -42,7 +42,7 @@ class JWTUtils {
 
     const verifyOptions = { ...defaultOptions, ...options };
 
-    return jwt.verify(token, process.env.JWT_SECRET, verifyOptions);
+    return jwt.verify(token, config.jwt.secret, verifyOptions);
   }
 
   static decodeToken(token) {
@@ -64,8 +64,6 @@ class JWTUtils {
     return {
       accessToken: this.generateToken(payload),
       refreshToken: this.generateRefreshToken(payload),
-      tokenType: 'Bearer',
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
     };
   }
 

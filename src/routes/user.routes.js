@@ -20,4 +20,8 @@ router.post(
   userController.login
 );
 
+router.post('/logout', userController.logout);
+
+router.post('/refresh', userController.refreshToken);
+
 module.exports = router;

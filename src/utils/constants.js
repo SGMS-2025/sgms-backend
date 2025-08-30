@@ -156,6 +156,7 @@ const SUCCESS_MESSAGES = {
   LOGIN_SUCCESS: 'Login successful',
   LOGOUT_SUCCESS: 'Logout successful',
   REGISTER_SUCCESS: 'Registration successful',
+  TOKEN_REFRESHED: 'Token refreshed successfully',
   PASSWORD_CHANGED: 'Password changed successfully',
   EMAIL_VERIFIED: 'Email verified successfully',
   PROFILE_UPDATED: 'Profile updated successfully',
@@ -176,6 +177,7 @@ const ERROR_MESSAGES = {
   UNAUTHORIZED_ACCESS: 'Unauthorized access',
   INSUFFICIENT_PERMISSIONS: 'Insufficient permissions',
   INVALID_TOKEN: 'Invalid or expired token',
+  REFRESH_TOKEN_NOT_FOUND: 'Refresh token not found',
   EMAIL_NOT_VERIFIED: 'Email not verified',
 
   VALIDATION_FAILED: 'Validation failed',
@@ -184,6 +186,11 @@ const ERROR_MESSAGES = {
 
   INTERNAL_ERROR: 'Internal server error',
   SERVICE_UNAVAILABLE: 'Service temporarily unavailable',
+
+  // Rate limit messages
+  RATE_LIMIT_GENERAL: 'Too many requests from this IP, please try again later',
+  RATE_LIMIT_AUTH: 'Too many authentication attempts, please try again later',
+  RATE_LIMIT_API: 'API rate limit exceeded, please try again later',
 };
 
 const DEFAULT_CONFIG = {

@@ -1,12 +1,21 @@
 const { createAppError } = require('../common/error');
 const asyncHandler = require('../common/asyncHandler');
 const JWTUtils = require('../utils/jwt');
+const CookieUtils = require('../utils/cookie');
 const { User } = require('../models');
 const { CONSTANTS } = require('../utils/constants');
 
 const authenticate = asyncHandler(async (req, res, next) => {
+  let token = null;
+
   const authHeader = req.headers.authorization;
-  const token = JWTUtils.extractTokenFromHeader(authHeader);
+  if (authHeader) {
+    token = JWTUtils.extractTokenFromHeader(authHeader);
+  }
+
+  if (!token) {
+    token = CookieUtils.getAccessTokenFromCookie(req);
+  }
 
   if (!token) {
     throw createAppError.unauthorized(
@@ -102,8 +111,18 @@ const authorizePermission = (...permissions) => {
 };
 
 const optionalAuth = asyncHandler(async (req, res, next) => {
+  // Try to get token from Authorization header first, then from cookie
+  let token = null;
+
   const authHeader = req.headers.authorization;
-  const token = JWTUtils.extractTokenFromHeader(authHeader);
+  if (authHeader) {
+    token = JWTUtils.extractTokenFromHeader(authHeader);
+  }
+
+  // If no token in header, try to get from cookie
+  if (!token) {
+    token = CookieUtils.getAccessTokenFromCookie(req);
+  }
 
   if (token) {
     try {
