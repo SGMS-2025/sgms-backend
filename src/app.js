@@ -14,6 +14,9 @@ const {
   handleNotFound,
 } = require('./middlewares/error.middleware');
 const { apiLimiter } = require('./middlewares/rateLimiter.middleware');
+const {
+  requestLoggingMiddleware,
+} = require('./middlewares/logging.middleware');
 const requestId = require('./middlewares/requestId.middleware');
 const apiRoutes = require('./routes');
 
@@ -67,31 +70,14 @@ app.use(cookieParser());
 app.use(
   express.json({
     limit: '10mb',
-    verify: (req, res, buf) => {
+    verify: (req, _res, buf) => {
       req.rawBody = buf.toString();
     },
   })
 );
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-app.use((req, res, next) => {
-  const start = Date.now();
-
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    logger.info('Request completed', {
-      method: req.method,
-      url: req.originalUrl,
-      statusCode: res.statusCode,
-      duration: `${duration}ms`,
-      ip: req.ip,
-      userAgent: req.get('User-Agent'),
-      requestId: req.id,
-    });
-  });
-
-  next();
-});
+app.use(requestLoggingMiddleware);
 
 app.use('/api', apiLimiter);
 
@@ -117,7 +103,7 @@ app.use(handleNotFound);
 
 app.use(globalErrorHandler);
 
-process.on('unhandledRejection', (err, promise) => {
+process.on('unhandledRejection', (err) => {
   logger.error('Unhandled Promise Rejection:', {
     error: err.message,
     stack: err.stack,

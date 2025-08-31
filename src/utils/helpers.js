@@ -1,7 +1,8 @@
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const generateRandomString = (length = 32) => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const chars =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -19,18 +20,21 @@ const sanitizeString = (str) => {
 };
 
 const isEmpty = (value) => {
-  return value == null || value === '' ||
-         (Array.isArray(value) && value.length === 0) ||
-         (typeof value === 'object' && Object.keys(value).length === 0);
+  return (
+    value == null ||
+    value === '' ||
+    (Array.isArray(value) && value.length === 0) ||
+    (typeof value === 'object' && Object.keys(value).length === 0)
+  );
 };
 
 const deepClone = (obj) => {
   if (obj === null || typeof obj !== 'object') return obj;
   if (obj instanceof Date) return new Date(obj.getTime());
-  if (obj instanceof Array) return obj.map(item => deepClone(item));
+  if (obj instanceof Array) return obj.map((item) => deepClone(item));
   if (typeof obj === 'object') {
     const cloned = {};
-    Object.keys(obj).forEach(key => {
+    Object.keys(obj).forEach((key) => {
       cloned[key] = deepClone(obj[key]);
     });
     return cloned;
@@ -55,6 +59,39 @@ const formatDate = (date, format = 'YYYY-MM-DD') => {
     .replace('ss', seconds);
 };
 
+const getTimestamp = () => {
+  return new Date().toISOString().replace('T', ' ').substring(0, 19);
+};
+
+const isValidDate = (date) => {
+  return date instanceof Date && !isNaN(date);
+};
+
+const addDays = (date, days) => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+};
+
+const addHours = (date, hours) => {
+  const result = new Date(date);
+  result.setHours(result.getHours() + hours);
+  return result;
+};
+
+const getDateRange = (startDate, endDate) => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const dates = [];
+
+  while (start <= end) {
+    dates.push(new Date(start));
+    start.setDate(start.getDate() + 1);
+  }
+
+  return dates;
+};
+
 const toSlug = (str) => {
   return str
     .toLowerCase()
@@ -70,11 +107,11 @@ const capitalize = (str) => {
 };
 
 const camelToSnake = (str) => {
-  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 };
 
 const snakeToCamel = (str) => {
-  return str.replace(/([-_][a-z])/g, group =>
+  return str.replace(/([-_][a-z])/g, (group) =>
     group.toUpperCase().replace('-', '').replace('_', '')
   );
 };
@@ -98,7 +135,7 @@ const getPaginationMeta = (page, limit, total) => {
     total,
     totalPages,
     hasNext,
-    hasPrev
+    hasPrev,
   };
 };
 
@@ -116,8 +153,8 @@ const maskString = (str, visibleChars = 4) => {
 
 const generateUUID = () => {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = Math.random() * 16 | 0;
-    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 };
@@ -139,6 +176,11 @@ module.exports = {
   isEmpty,
   deepClone,
   formatDate,
+  getTimestamp,
+  isValidDate,
+  addDays,
+  addHours,
+  getDateRange,
   toSlug,
   capitalize,
   camelToSnake,
@@ -148,5 +190,5 @@ module.exports = {
   isValidEmail,
   maskString,
   generateUUID,
-  removeUndefined
+  removeUndefined,
 };

@@ -40,6 +40,9 @@ const globalErrorHandler = (err, req, res, next) => {
   }
 
   const publicError = toPublicError(appError, req);
+
+  res.locals.errorResponse = publicError;
+
   res.status(appError.statusCode).json(publicError);
 };
 
