@@ -37,6 +37,7 @@ jobs:
           args: >
             -Dsonar.projectKey=sgms-backend
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.projectName=sgms-backend
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
