@@ -32,15 +32,29 @@ jobs:
       - name: Run tests (with coverage)
         run: npm test
 
-      # SonarCloud Scan (official action)
-      - name: SonarCloud Scan
+      # SonarCloud Scan for main branch
+      - name: SonarCloud Scan (Main Branch)
+        if: github.ref_name == 'main'
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           args: >
             -Dsonar.projectKey=sgms-backend
-            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+            -Dsonar.organization=SGMS-2025
             -Dsonar.projectName=sgms-backend
-            ${{ github.ref_name != 'main' && format('-Dsonar.branch.name={0}', github.ref_name) || '' }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # SonarCloud Scan for feature branches
+      - name: SonarCloud Scan (Feature Branch)
+        if: github.ref_name != 'main'
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=sgms-backend
+            -Dsonar.organization=SGMS-2025
+            -Dsonar.projectName=sgms-backend
+            -Dsonar.branch.name=${{ github.ref_name }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
