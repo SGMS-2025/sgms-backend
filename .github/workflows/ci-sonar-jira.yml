@@ -1,0 +1,108 @@
+name: CI • SonarCloud + Jira
+
+on:
+  push:
+    branches: ['*'] # Chạy SonarCloud cho mọi branch khi push
+  pull_request:
+    branches: ['main', 'dev'] # Chỉ chạy khi PR vào main hoặc dev
+    types: [opened, reopened, synchronize]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    env:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_ORG: ${{ secrets.SONAR_ORG }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Run tests (with coverage)
+        run: npm test
+
+      # SonarCloud Scan (official action)
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          args: >
+            -Dsonar.projectKey=sgms-backend
+            -Dsonar.organization=${{ secrets.SONAR_ORG }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Đợi phân tích xong + kiểm tra Quality Gate
+      - name: Check Quality Gate & create Jira if failed
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_PROJECT_KEY: ${{ secrets.JIRA_PROJECT_KEY }}
+          SONAR_PROJECT_KEY: sgms-backend
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+
+          echo "⏳ Waiting for SonarCloud Quality Gate..."
+          # Poll tối đa ~2 phút (24 * 5s)
+          for i in {1..24}; do
+            STATUS=$(curl -s -u $SONAR_TOKEN: \
+              "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=$SONAR_PROJECT_KEY" \
+              | jq -r '.projectStatus.status // empty')
+
+            if [ -n "$STATUS" ]; then
+              echo "Quality Gate Status: $STATUS"
+              break
+            fi
+
+            sleep 5
+          done
+
+          if [ "$STATUS" != "OK" ]; then
+            echo "❌ Quality Gate FAILED for $SONAR_PROJECT_KEY. Gathering top issues..."
+
+            # Lấy top issues quan trọng để đưa vào Jira
+            ISSUES_JSON=$(curl -s -u $SONAR_TOKEN: \
+              "$SONAR_HOST_URL/api/issues/search?projects=$SONAR_PROJECT_KEY&severities=BLOCKER,CRITICAL,MAJOR&ps=5&resolved=false")
+
+            # Tạo mô tả text cho Jira (liệt kê 5 issue kèm link mở trực tiếp)
+            DESCRIPTION=$(echo "$ISSUES_JSON" | jq -r --arg url "$SONAR_HOST_URL" --arg key "$SONAR_PROJECT_KEY" '
+              "Quality Gate failed on project: " + $key + "\n\nTop issues:\n" +
+              ( .issues | map(
+                  "- [" + .severity + "] " + .message + " (" +
+                  ( .component | split(":")[1] ) + ":" + ( (.textRange.startLine|tostring) // "?" ) + ")\n  " +
+                  $url + "/project/issues?id=" + $key + "&open=" + .key + "&resolved=false"
+                ) | join("\n")
+              )
+            ')
+
+            # Gọi Jira REST API để tạo ticket
+            curl -s -X POST \
+              -H "Content-Type: application/json" \
+              -u "$JIRA_USER:$JIRA_API_TOKEN" \
+              --data "{
+                \"fields\": {
+                  \"project\": { \"key\": \"$JIRA_PROJECT_KEY\" },
+                  \"summary\": \"[SonarCloud] Quality Gate FAILED - $SONAR_PROJECT_KEY\",
+                  \"description\": \"$DESCRIPTION\n\nDashboard: $SONAR_HOST_URL/project/overview?id=$SONAR_PROJECT_KEY\",
+                  \"issuetype\": { \"name\": \"Bug\" },
+                  \"labels\": [\"sonarcloud\",\"quality-gate\",\"$SONAR_PROJECT_KEY\"]
+                }
+              }" \
+              "$JIRA_URL/rest/api/2/issue/" > /dev/null
+
+            # Fail job để hiển thị đỏ trên PR / main
+            exit 1
+          else
+            echo "✅ Quality Gate PASSED for $SONAR_PROJECT_KEY"
+          fi
