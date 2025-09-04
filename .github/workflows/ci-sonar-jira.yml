@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
 
       - name: Use Node.js 20
         uses: actions/setup-node@v4
@@ -38,6 +40,7 @@ jobs:
             -Dsonar.projectKey=sgms-backend
             -Dsonar.organization=${{ secrets.SONAR_ORG }}
             -Dsonar.projectName=sgms-backend
+            ${{ github.ref_name != 'main' && format('-Dsonar.branch.name={0}', github.ref_name) || '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
