@@ -17,12 +17,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
 
       - name: Use Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@1e60f620b9541d16bece96c5465dc8ee9832be0b # v4.0.3
         with:
           node-version: '20'
 
@@ -32,23 +32,61 @@ jobs:
       - name: Run tests (with coverage)
         run: npm test
 
-      # SonarCloud Scan for main branch
-      - name: SonarCloud Scan (Main Branch)
+      # Create SonarCloud project if not exists
+      - name: Create SonarCloud Project
         if: github.ref_name == 'main'
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          args: >
-            -Dsonar.projectKey=sgms-backend
-            -Dsonar.organization=SGMS-2025
-            -Dsonar.projectName=sgms-backend
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+          
+          echo "Checking if project exists..."
+          PROJECT_EXISTS=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
+            "https://sonarcloud.io/api/projects/search?projects=sgms-backend" \
+            | jq -r '.components | length')
+          
+          if [ "$PROJECT_EXISTS" -eq "0" ]; then
+            echo "Creating SonarCloud project..."
+            curl -X POST \
+              -u ${{ secrets.SONAR_TOKEN }}: \
+              -d "project=sgms-backend" \
+              -d "name=sgms-backend" \
+              -d "organization=SGMS-2025" \
+              "https://sonarcloud.io/api/projects/create"
+            
+            echo "Setting default branch..."
+            curl -X POST \
+              -u ${{ secrets.SONAR_TOKEN }}: \
+              -d "project=sgms-backend" \
+              -d "branch=main" \
+              "https://sonarcloud.io/api/project_branches/set_main"
+          else
+            echo "Project already exists"
+          fi
+
+      # SonarCloud Scan for main branch
+      - name: SonarCloud Scan (Main Branch) 
+        if: github.ref_name == 'main'
+        run: |
+          echo "Installing SonarCloud CLI..."
+          wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip > /tmp/sonar.zip
+          unzip -q /tmp/sonar.zip -d /tmp/
+          export PATH="/tmp/sonar-scanner-5.0.1.3006-linux/bin:$PATH"
+          
+          echo "Running SonarCloud analysis..."
+          sonar-scanner \
+            -Dsonar.projectKey=sgms-backend \
+            -Dsonar.organization=SGMS-2025 \
+            -Dsonar.sources=src \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.js,**/*.test.js,**/coverage/** \
+            -Dsonar.projectName=sgms-backend \
+            -Dsonar.projectVersion=1.0.0
 
       # SonarCloud Scan for feature branches
       - name: SonarCloud Scan (Feature Branch)
         if: github.ref_name != 'main'
-        uses: SonarSource/sonarcloud-github-action@v2
+        uses: SonarSource/sonarcloud-github-action@e44258b109568baa0df60ed515909fc6c72cba92 # v2.3.0
         with:
           args: >
             -Dsonar.projectKey=sgms-backend
