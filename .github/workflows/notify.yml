@@ -27,6 +27,8 @@ jobs:
           AUTHOR: ${{ github.event.pull_request.user.login }}
           COMMIT_MSG: ${{ steps.get-commit.outputs.msg }}
           DEV_ROLE_ID: ${{ secrets.DEV_ROLE_ID }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
 
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
@@ -40,7 +42,7 @@ jobs:
               {
                 "title": "📢 New SGMS Backend Pull Request: ${TITLE}",
                 "url": "${URL}",
-                "description": "📦 **Commit**: \`${COMMIT_MSG}\`\n👤 **Author**: [${AUTHOR}](https://github.com/${AUTHOR})\n🔗 **Repository**: SGMS Backend",
+                "description": "🌿 **Branch**: \`${SOURCE_BRANCH}\` → \`${TARGET_BRANCH}\`\n📦 **Commit**: \`${COMMIT_MSG}\`\n👤 **Author**: [${AUTHOR}](https://github.com/${AUTHOR})\n🔗 **Repository**: SGMS Backend",
                 "color": 3447003,
                 "author": {
                   "name": "${AUTHOR}",
@@ -69,6 +71,8 @@ jobs:
           URL: ${{ github.event.pull_request.html_url }}
           AUTHOR: ${{ github.event.pull_request.user.login }}
           MERGER: ${{ github.event.pull_request.merged_by.login }}
+          SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
+          TARGET_BRANCH: ${{ github.event.pull_request.base.ref }}
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
 
@@ -80,7 +84,7 @@ jobs:
               {
                 "title": "🎉 SGMS Backend PR Merged: ${TITLE}",
                 "url": "${URL}",
-                "description": "✅ **Status**: Merged to main\n👤 **Author**: [${AUTHOR}](https://github.com/${AUTHOR})\n🔄 **Merged by**: [${MERGER}](https://github.com/${MERGER})\n🚀 **Auto-deployment**: Starting...",
+                "description": "🌿 **Branch**: \`${SOURCE_BRANCH}\` → \`${TARGET_BRANCH}\`\n✅ **Status**: Successfully merged\n👤 **Author**: [${AUTHOR}](https://github.com/${AUTHOR})\n🔄 **Merged by**: [${MERGER}](https://github.com/${MERGER})\n🚀 **Auto-deployment**: Starting...",
                 "color": 3066993,
                 "footer": {
                   "text": "🕒 Merged at ${TIMESTAMP}"
