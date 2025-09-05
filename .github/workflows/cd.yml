@@ -242,21 +242,37 @@ jobs:
     if: always()
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Notify Discord on Success
         if: needs.deploy.result == 'success'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DEV_ROLE_ID: ${{ secrets.DEV_ROLE_ID }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_AUTHOR: ${{ github.actor }}
         run: |
+          # Get commit message
+          COMMIT_MSG=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "Direct deployment")
+          
           curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d '{
               "content": "<@&'"$DEV_ROLE_ID"'>",
               "embeds": [{
                 "title": "🚀 SGMS Backend Deployed Successfully",
-                "description": "**Branch:** main\n**Commit:** `${{ github.sha }}`\n**Author:** ${{ github.actor }}\n**API:** https://api.gymsmart.site/api",
+                "description": "🌿 **Branch:** `'"$BRANCH_NAME"'`\n📦 **Commit:** `'"${COMMIT_SHA:0:8}"'`\n💬 **Message:** `'"$COMMIT_MSG"'`\n👤 **Author:** ['"$COMMIT_AUTHOR"'](https://github.com/'"$COMMIT_AUTHOR"')\n🔗 **API:** https://api.gymsmart.site/api",
                 "color": 3066993,
-                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+                "footer": {
+                  "text": "🕒 Deployed at '"$(date -u +"%Y-%m-%d %H:%M:%S UTC")"'"
+                },
+                "thumbnail": {
+                  "url": "https://github.com/'"$COMMIT_AUTHOR"'.png"
+                }
               }]
             }'
 
@@ -265,15 +281,26 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DEV_ROLE_ID: ${{ secrets.DEV_ROLE_ID }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_AUTHOR: ${{ github.actor }}
         run: |
+          # Get commit message
+          COMMIT_MSG=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "Direct deployment")
+          
           curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d '{
               "content": "<@&'"$DEV_ROLE_ID"'>",
               "embeds": [{
                 "title": "❌ SGMS Backend Deployment Failed",
-                "description": "**Branch:** main\n**Commit:** `${{ github.sha }}`\n**Author:** ${{ github.actor }}\n**Check:** [View Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+                "description": "🌿 **Branch:** `'"$BRANCH_NAME"'`\n📦 **Commit:** `'"${COMMIT_SHA:0:8}"'`\n💬 **Message:** `'"$COMMIT_MSG"'`\n👤 **Author:** ['"$COMMIT_AUTHOR"'](https://github.com/'"$COMMIT_AUTHOR"')\n🔗 **Check:** [View Logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
                 "color": 15158332,
-                "timestamp": "'$(date -u +%Y-%m-%dT%H:%M:%S.000Z)'"
+                "footer": {
+                  "text": "🕒 Failed at '"$(date -u +"%Y-%m-%d %H:%M:%S UTC")"'"
+                },
+                "thumbnail": {
+                  "url": "https://github.com/'"$COMMIT_AUTHOR"'.png"
+                }
               }]
             }'
