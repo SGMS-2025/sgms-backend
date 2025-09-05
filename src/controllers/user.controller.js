@@ -58,6 +58,39 @@ class UserController {
 
     return sendSuccess(res, null, SUCCESS_MESSAGES.TOKEN_REFRESHED);
   });
+
+  getProfile = asyncHandler(async (req, res) => {
+    const user = await userService.getUserProfile(req.user.id);
+    return sendSuccess(res, user, SUCCESS_MESSAGES.USER_FOUND);
+  });
+  
+  getUserById = asyncHandler(async (req, res) => {
+    const { userId } = req.params;
+    const user = await userService.getUserProfileById(userId);
+    return sendSuccess(res, user, SUCCESS_MESSAGES.USER_FOUND);
+  });
+  
+  updateProfile = asyncHandler(async (req, res) => {
+    const updatedUser = await userService.updateUserProfile(req.user.id, req.body);
+    return sendSuccess(res, updatedUser, SUCCESS_MESSAGES.PROFILE_UPDATED);
+  });
+  
+  // Controller xử lý upload avatar thông qua Cloudinary
+  uploadAvatar = asyncHandler(async (req, res) => {
+    // req.file là file đã được xử lý bởi multer middleware
+    if (!req.file) {
+      throw createAppError.badRequest('No file uploaded');
+    }
+
+    const updatedUser = await userService.uploadAvatar(req.user.id, req.file);
+    return sendSuccess(res, updatedUser, SUCCESS_MESSAGES.AVATAR_UPDATED);
+  });
+  
+  // Controller xóa avatar
+  deleteAvatar = asyncHandler(async (req, res) => {
+    const updatedUser = await userService.deleteAvatar(req.user.id);
+    return sendSuccess(res, updatedUser, SUCCESS_MESSAGES.AVATAR_REMOVED);
+  });
 }
 
 module.exports = new UserController();

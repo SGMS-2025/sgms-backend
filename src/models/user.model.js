@@ -51,6 +51,15 @@ const userSchema = new mongoose.Schema(
       publicId: String,
       url: String,
     },
+    gender: {
+      type: String,
+      enum: Object.values(CONSTANTS.USER_GENDER),
+      default: CONSTANTS.USER_GENDER.OTHER,
+    },
+    bio: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: true,

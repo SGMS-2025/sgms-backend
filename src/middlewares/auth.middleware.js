@@ -3,7 +3,7 @@ const asyncHandler = require('../common/asyncHandler');
 const JWTUtils = require('../utils/jwt');
 const CookieUtils = require('../utils/cookie');
 const { User } = require('../models');
-const { CONSTANTS } = require('../utils/constants');
+const { CONSTANTS, AUTH_MESSAGES } = require('../utils/constants');
 
 const authenticate = asyncHandler(async (req, res, next) => {
   let token = null;
@@ -19,7 +19,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
 
   if (!token) {
     throw createAppError.unauthorized(
-      CONSTANTS.AUTH_MESSAGES.ACCESS_TOKEN_REQUIRED
+      AUTH_MESSAGES.ACCESS_TOKEN_REQUIRED
     );
   }
 
@@ -27,11 +27,11 @@ const authenticate = asyncHandler(async (req, res, next) => {
   const user = await User.findById(decoded.id);
 
   if (!user) {
-    throw createAppError.unauthorized(CONSTANTS.AUTH_MESSAGES.USER_NOT_FOUND);
+    throw createAppError.unauthorized(AUTH_MESSAGES.USER_NOT_FOUND);
   }
 
   if (user.status !== CONSTANTS.USER_STATUS.ACTIVE) {
-    throw createAppError.forbidden(CONSTANTS.AUTH_MESSAGES.ACCOUNT_DEACTIVATED);
+    throw createAppError.forbidden(AUTH_MESSAGES.ACCOUNT_DEACTIVATED);
   }
 
   req.user = user;
@@ -42,13 +42,13 @@ const authorize = (...roles) => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
     if (!roles.includes(req.user.role)) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_ROLES(roles)
+        AUTH_MESSAGES.ACCESS_DENIED_ROLES(roles)
       );
     }
 
@@ -60,7 +60,7 @@ const authorizeMinRole = (minRole) => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -69,13 +69,13 @@ const authorizeMinRole = (minRole) => {
 
     if (!userRoleLevel || !requiredRoleLevel) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.INVALID_ROLE_CONFIGURATION
+        AUTH_MESSAGES.INVALID_ROLE_CONFIGURATION
       );
     }
 
     if (userRoleLevel < requiredRoleLevel) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_MIN_ROLE(minRole)
+        AUTH_MESSAGES.ACCESS_DENIED_MIN_ROLE(minRole)
       );
     }
 
@@ -87,7 +87,7 @@ const authorizePermission = (...permissions) => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -102,7 +102,7 @@ const authorizePermission = (...permissions) => {
 
     if (!hasAllPermissions) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_PERMISSIONS(permissions)
+        AUTH_MESSAGES.ACCESS_DENIED_PERMISSIONS(permissions)
       );
     }
 
@@ -144,7 +144,7 @@ const authorizeOwnerOrAdmin = (resourceUserIdField = 'userId') => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -159,7 +159,7 @@ const authorizeOwnerOrAdmin = (resourceUserIdField = 'userId') => {
 
     if (!isOwner && !hasAdminPrivileges) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_OWNER_OR_ADMIN
+        AUTH_MESSAGES.ACCESS_DENIED_OWNER_OR_ADMIN
       );
     }
 
@@ -171,7 +171,7 @@ const authorizeOwnerOrHigher = () => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -183,7 +183,7 @@ const authorizeOwnerOrHigher = () => {
 
     if (!allowedRoles.includes(req.user.role)) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_OWNER_REQUIRED
+        AUTH_MESSAGES.ACCESS_DENIED_OWNER_REQUIRED
       );
     }
 
@@ -195,7 +195,7 @@ const authorizeStaff = () => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -209,7 +209,7 @@ const authorizeStaff = () => {
 
     if (!staffRoles.includes(req.user.role)) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_STAFF_REQUIRED
+        AUTH_MESSAGES.ACCESS_DENIED_STAFF_REQUIRED
       );
     }
 
@@ -221,7 +221,7 @@ const authorizeManagement = () => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -232,7 +232,7 @@ const authorizeManagement = () => {
 
     if (!managementRoles.includes(req.user.role)) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_MANAGEMENT_REQUIRED
+        AUTH_MESSAGES.ACCESS_DENIED_MANAGEMENT_REQUIRED
       );
     }
 
@@ -244,13 +244,13 @@ const authorizeAdmin = () => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
     if (req.user.role !== CONSTANTS.USER_ROLES.ADMIN) {
       throw createAppError.forbidden(
-        CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_ADMIN_REQUIRED
+        AUTH_MESSAGES.ACCESS_DENIED_ADMIN_REQUIRED
       );
     }
 
@@ -262,7 +262,7 @@ const authorizeGymAccess = (gymIdField = 'gymId') => {
   return asyncHandler(async (req, res, next) => {
     if (!req.user) {
       throw createAppError.unauthorized(
-        CONSTANTS.AUTH_MESSAGES.AUTHENTICATION_REQUIRED
+        AUTH_MESSAGES.AUTHENTICATION_REQUIRED
       );
     }
 
@@ -298,7 +298,7 @@ const authorizeGymAccess = (gymIdField = 'gymId') => {
     }
 
     throw createAppError.forbidden(
-      CONSTANTS.AUTH_MESSAGES.ACCESS_DENIED_GYM_ACCESS
+      AUTH_MESSAGES.ACCESS_DENIED_GYM_ACCESS
     );
   });
 };

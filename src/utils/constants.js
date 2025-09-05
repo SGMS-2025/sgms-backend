@@ -9,7 +9,7 @@ const CONSTANTS = {
     NOT_FOUND: 404,
     CONFLICT: 409,
     UNPROCESSABLE_ENTITY: 422,
-    INTERNAL_SERVER_ERROR: 500,
+    INTERNAL_SERVER_ERROR: 500
   },
 
   USER_ROLES: {
@@ -18,7 +18,7 @@ const CONSTANTS = {
     TECHNICIAN: 'TECHNICIAN',
     OWNER: 'OWNER',
     MANAGER: 'MANAGER',
-    ADMIN: 'ADMIN',
+    ADMIN: 'ADMIN'
   },
 
   ROLE_HIERARCHY: {
@@ -27,7 +27,7 @@ const CONSTANTS = {
     TECHNICIAN: 3,
     OWNER: 4,
     MANAGER: 5,
-    ADMIN: 6,
+    ADMIN: 6
   },
 
   ROLE_PERMISSIONS: {
@@ -40,7 +40,7 @@ const CONSTANTS = {
       'booking:read',
       'booking:cancel',
       'payment:read',
-      'notification:read',
+      'notification:read'
     ],
     PT: [
       'profile:read',
@@ -55,7 +55,7 @@ const CONSTANTS = {
       'progress:read',
       'progress:update',
       'booking:read',
-      'notification:read',
+      'notification:read'
     ],
     TECHNICIAN: [
       'profile:read',
@@ -68,7 +68,7 @@ const CONSTANTS = {
       'maintenance:update',
       'inventory:read',
       'inventory:update',
-      'notification:read',
+      'notification:read'
     ],
     OWNER: [
       'profile:read',
@@ -86,36 +86,42 @@ const CONSTANTS = {
       'report:read',
       'setting:read',
       'setting:update',
-      'notification:manage',
+      'notification:manage'
     ],
     MANAGER: ['*'],
-    ADMIN: ['*'],
+    ADMIN: ['*']
   },
 
   USER_STATUS: {
     ACTIVE: 'ACTIVE',
     INACTIVE: 'INACTIVE',
-    SUSPENDED: 'SUSPENDED',
+    SUSPENDED: 'SUSPENDED'
+  },
+
+  USER_GENDER: {
+    MALE: 'MALE',
+    FEMALE: 'FEMALE',
+    OTHER: 'OTHER'
   },
 
   TOKEN_TYPES: {
     ACCESS: 'access',
     REFRESH: 'refresh',
     RESET_PASSWORD: 'resetPassword',
-    VERIFY_EMAIL: 'verifyEmail',
+    VERIFY_EMAIL: 'verifyEmail'
   },
 
   API_LIMITS: {
     MAX_FILE_SIZE: 10 * 1024 * 1024,
     MAX_REQUEST_SIZE: 10 * 1024 * 1024,
     DEFAULT_PAGE_SIZE: 10,
-    MAX_PAGE_SIZE: 100,
+    MAX_PAGE_SIZE: 100
   },
 
   CACHE_TTL: {
     SHORT: 60 * 5,
     MEDIUM: 60 * 30,
-    LONG: 60 * 60 * 24,
+    LONG: 60 * 60 * 24
   },
 
   VALIDATION: {
@@ -123,30 +129,30 @@ const CONSTANTS = {
     PASSWORD_MAX_LENGTH: 128,
     EMAIL_MAX_LENGTH: 254,
     USERNAME_MIN_LENGTH: 3,
-    USERNAME_MAX_LENGTH: 30,
+    USERNAME_MAX_LENGTH: 30
   },
 
   ENVIRONMENTS: {
     DEVELOPMENT: 'development',
     PRODUCTION: 'production',
-    TEST: 'test',
-  },
-};
+    TEST: 'test'
+  }
+}
 
 const REGEX = {
-  STRONG_PASSWORD:
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
+  STRONG_PASSWORD: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/,
 
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 
   USERNAME: /^[a-zA-Z0-9_]{3,30}$/,
 
-  PHONE: /^\+?[1-9]\d{1,14}$/,
+  // Thay đổi REGEX cho số điện thoại để phù hợp với định dạng Việt Nam
+  PHONE: /^(\+?84|0)[3-9][0-9]{8}$/,
 
   URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
 
-  UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-};
+  UUID: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+}
 
 const SUCCESS_MESSAGES = {
   USER_CREATED: 'User created successfully',
@@ -160,11 +166,13 @@ const SUCCESS_MESSAGES = {
   PASSWORD_CHANGED: 'Password changed successfully',
   EMAIL_VERIFIED: 'Email verified successfully',
   PROFILE_UPDATED: 'Profile updated successfully',
+  AVATAR_UPDATED: 'Avatar uploaded successfully',
+  AVATAR_REMOVED: 'Avatar removed successfully',
   OPERATION_SUCCESS: 'Operation completed successfully',
   DATA_RETRIEVED: 'Data retrieved successfully',
   DATA_UPDATED: 'Data updated successfully',
-  DATA_DELETED: 'Data deleted successfully',
-};
+  DATA_DELETED: 'Data deleted successfully'
+}
 
 const ERROR_MESSAGES = {
   USER_NOT_FOUND: 'User not found',
@@ -190,54 +198,48 @@ const ERROR_MESSAGES = {
   // Rate limit messages
   RATE_LIMIT_GENERAL: 'Too many requests from this IP, please try again later',
   RATE_LIMIT_AUTH: 'Too many authentication attempts, please try again later',
-  RATE_LIMIT_API: 'API rate limit exceeded, please try again later',
-};
+  RATE_LIMIT_API: 'API rate limit exceeded, please try again later'
+}
 
 const DEFAULT_CONFIG = {
   PAGINATION: {
     DEFAULT_PAGE: 1,
     DEFAULT_LIMIT: 10,
-    MAX_LIMIT: 100,
+    MAX_LIMIT: 100
   },
 
   JWT: {
     EXPIRES_IN: '7d',
-    REFRESH_EXPIRES_IN: '30d',
+    REFRESH_EXPIRES_IN: '30d'
   },
 
   RATE_LIMIT: {
     WINDOW_MS: 15 * 60 * 1000,
-    MAX_REQUESTS: 100,
+    MAX_REQUESTS: 100
   },
 
   FILE_UPLOAD: {
     MAX_SIZE: 10 * 1024 * 1024,
-    ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'],
-  },
-};
+    ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
+  }
+}
 
 const AUTH_MESSAGES = {
   ACCESS_TOKEN_REQUIRED: 'Access token is required',
   USER_NOT_FOUND: 'User not found',
   ACCOUNT_DEACTIVATED: 'Account is deactivated',
   AUTHENTICATION_REQUIRED: 'Authentication required',
-  ACCESS_DENIED_ROLES: (roles) =>
-    `Access denied. Required roles: ${roles.join(', ')}`,
+  ACCESS_DENIED_ROLES: (roles) => `Access denied. Required roles: ${roles.join(', ')}`,
   INVALID_ROLE_CONFIGURATION: 'Invalid role configuration',
-  ACCESS_DENIED_MIN_ROLE: (minRole) =>
-    `Access denied. Minimum role required: ${minRole}`,
-  ACCESS_DENIED_PERMISSIONS: (permissions) =>
-    `Access denied. Required permissions: ${permissions.join(', ')}`,
-  ACCESS_DENIED_OWNER_OR_ADMIN:
-    'Access denied. You can only access your own resources or need admin privileges',
+  ACCESS_DENIED_MIN_ROLE: (minRole) => `Access denied. Minimum role required: ${minRole}`,
+  ACCESS_DENIED_PERMISSIONS: (permissions) => `Access denied. Required permissions: ${permissions.join(', ')}`,
+  ACCESS_DENIED_OWNER_OR_ADMIN: 'Access denied. You can only access your own resources or need admin privileges',
   ACCESS_DENIED_OWNER_REQUIRED: 'Access denied. Owner level access required',
   ACCESS_DENIED_STAFF_REQUIRED: 'Access denied. Staff access required',
-  ACCESS_DENIED_MANAGEMENT_REQUIRED:
-    'Access denied. Management access required',
+  ACCESS_DENIED_MANAGEMENT_REQUIRED: 'Access denied. Management access required',
   ACCESS_DENIED_ADMIN_REQUIRED: 'Access denied. Admin access required',
-  ACCESS_DENIED_GYM_ACCESS:
-    'Access denied. You do not have access to this gym/facility',
-};
+  ACCESS_DENIED_GYM_ACCESS: 'Access denied. You do not have access to this gym/facility'
+}
 
 module.exports = {
   CONSTANTS,
@@ -245,5 +247,4 @@ module.exports = {
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
   DEFAULT_CONFIG,
-  AUTH_MESSAGES,
-};
+AUTH_MESSAGES}
