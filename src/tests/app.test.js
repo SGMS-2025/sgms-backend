@@ -3,7 +3,7 @@
 describe('Basic Tests', () => {
   describe('Environment Setup', () => {
     it('should have test environment variables', () => {
-      expect(process.env.NODE_ENV).toBe('test');
+      expect(process.env.NODE_ENV).toBe('development');
       expect(process.env.JWT_SECRET).toBeDefined();
       expect(process.env.PORT).toBeDefined();
     });

@@ -21,6 +21,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --coverage --ci --watchAll=false",
+    "test:login": "jest --testPathPattern=user.login.test.js --coverage --collectCoverageFrom=\"src/routes/user.routes.js\" --collectCoverageFrom=\"src/controllers/user.controller.js\" --collectCoverageFrom=\"src/services/user.service.js\" --collectCoverageFrom=\"src/validations/auth.validation.js\"",
     "test:config": "node -e \"console.log('Environment validation passed')\"",
     "coverage": "jest --coverage && open coverage/lcov-report/index.html"
   },
