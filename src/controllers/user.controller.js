@@ -6,7 +6,7 @@ const CookieUtils = require('../utils/cookie');
 const asyncHandler = require('../common/asyncHandler');
 
 class UserController {
-  register = asyncHandler(async (req, res) => {
+  registerTest = asyncHandler(async (req, res) => {
     const result = await userService.registerTest(req.body);
 
     CookieUtils.setAuthCookies(res, {
@@ -57,6 +57,77 @@ class UserController {
     });
 
     return sendSuccess(res, null, SUCCESS_MESSAGES.TOKEN_REFRESHED);
+  });
+
+  // New OTP-based registration endpoints
+  register = asyncHandler(async (req, res) => {
+    const result = await userService.register(req.body);
+
+    return sendSuccess(res, {
+      expiresAt: result.expiresAt,
+    }, result.message);
+  });
+
+  verifyRegistrationOTP = asyncHandler(async (req, res) => {
+    const { email, otpCode } = req.body;
+    
+    const result = await userService.verifyRegistrationOTP(email, otpCode);
+
+    CookieUtils.setAuthCookies(res, {
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+    });
+
+    return sendCreated(res, {
+      user: result.user,
+    }, SUCCESS_MESSAGES.REGISTER_SUCCESS);
+  });
+
+  resendRegistrationOTP = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    
+    const result = await userService.resendRegistrationOTP(email);
+
+    return sendSuccess(res, {
+      expiresAt: result.expiresAt,
+    }, result.message);
+  });
+
+  getOTPStatus = asyncHandler(async (req, res) => {
+    const { email } = req.query;
+    
+    const result = await userService.getOTPStatus(email);
+
+    return sendSuccess(res, result.data, 'OTP status retrieved successfully');
+  });
+
+  // Password Reset OTP endpoints
+  sendPasswordResetOTP = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    
+    const result = await userService.sendPasswordResetOTP(email);
+
+    return sendSuccess(res, {
+      expiresAt: result.expiresAt,
+    }, result.message);
+  });
+
+  verifyPasswordResetOTP = asyncHandler(async (req, res) => {
+    const { email, otpCode, newPassword } = req.body;
+    
+    const result = await userService.verifyPasswordResetOTP(email, otpCode, newPassword);
+
+    return sendSuccess(res, null, result.message);
+  });
+
+  resendPasswordResetOTP = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    
+    const result = await userService.resendPasswordResetOTP(email);
+
+    return sendSuccess(res, {
+      expiresAt: result.expiresAt,
+    }, result.message);
   });
 }
 

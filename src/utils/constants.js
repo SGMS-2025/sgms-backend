@@ -105,6 +105,13 @@ const CONSTANTS = {
     VERIFY_EMAIL: 'verifyEmail',
   },
 
+  OTP_TYPES: {
+    REGISTRATION: 'registration',
+    RESET_PASSWORD: 'resetPassword',
+    VERIFY_EMAIL: 'verifyEmail',
+    TWO_FACTOR: 'twoFactor',
+  },
+
   API_LIMITS: {
     MAX_FILE_SIZE: 10 * 1024 * 1024,
     MAX_REQUEST_SIZE: 10 * 1024 * 1024,
@@ -141,7 +148,7 @@ const REGEX = {
 
   USERNAME: /^[a-zA-Z0-9_]{3,30}$/,
 
-  PHONE: /^\+?[1-9]\d{1,14}$/,
+  PHONE: /^\+?[0-9]\d{1,14}$/,
 
   URL: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/,
 
@@ -160,6 +167,9 @@ const SUCCESS_MESSAGES = {
   PASSWORD_CHANGED: 'Password changed successfully',
   EMAIL_VERIFIED: 'Email verified successfully',
   PROFILE_UPDATED: 'Profile updated successfully',
+  OTP_SENT: 'OTP sent successfully',
+  OTP_VERIFIED: 'OTP verified successfully',
+  OTP_RESENT: 'OTP resent successfully',
   OPERATION_SUCCESS: 'Operation completed successfully',
   DATA_RETRIEVED: 'Data retrieved successfully',
   DATA_UPDATED: 'Data updated successfully',
@@ -179,6 +189,14 @@ const ERROR_MESSAGES = {
   INVALID_TOKEN: 'Invalid or expired token',
   REFRESH_TOKEN_NOT_FOUND: 'Refresh token not found',
   EMAIL_NOT_VERIFIED: 'Email not verified',
+
+  // OTP related messages
+  INVALID_OTP: 'Invalid OTP code',
+  OTP_EXPIRED: 'OTP code has expired',
+  OTP_ALREADY_USED: 'OTP code has already been used',
+  OTP_MAX_ATTEMPTS: 'Maximum OTP attempts exceeded',
+  OTP_NOT_FOUND: 'OTP not found',
+  EMAIL_SEND_FAILED: 'Failed to send email',
 
   VALIDATION_FAILED: 'Validation failed',
   INVALID_INPUT: 'Invalid input data',
