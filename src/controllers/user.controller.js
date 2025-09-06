@@ -22,7 +22,7 @@ class UserController {
   });
 
   login = asyncHandler(async (req, res) => {
-    const result = await userService.loginTest(req.body);
+    const result = await userService.login(req.body);
 
     CookieUtils.setAuthCookies(res, {
       accessToken: result.accessToken,

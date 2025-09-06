@@ -46,10 +46,16 @@ class UserService {
     };
   }
 
-  async loginTest(credentials) {
-    const { email, password } = credentials;
+  async login(credentials) {
+    const { emailOrUsername, password } = credentials;
 
-    const user = await User.findOne({ email }).select('+password');
+    // Find user by email or username
+    const user = await User.findOne({
+      $or: [
+        { email: emailOrUsername },
+        { username: emailOrUsername }
+      ]
+    }).select('+password');
 
     if (!user) {
       throw createAppError.unauthorized(ERROR_MESSAGES.INVALID_CREDENTIALS);

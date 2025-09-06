@@ -170,7 +170,7 @@ const ERROR_MESSAGES = {
   USER_NOT_FOUND: 'User not found',
   USER_ALREADY_EXISTS: 'User already exists',
   USERNAME_ALREADY_EXISTS: 'Username already exists',
-  INVALID_CREDENTIALS: 'Invalid email or password',
+  INVALID_CREDENTIALS: 'INVALID_CREDENTIALS', // Invalid email/username or password
   ACCOUNT_LOCKED: 'Account is temporarily locked',
   ACCOUNT_SUSPENDED: 'Account has been suspended',
   ACCOUNT_INACTIVE: 'Account is not active',
